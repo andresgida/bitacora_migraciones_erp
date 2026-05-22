@@ -1,5 +1,4 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { Resend } from 'resend'
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -265,13 +264,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const { type, record, old_record } = payload
 
-    const resend = new Resend(process.env.RESEND_API_KEY)
+    const apiKey = process.env.RESEND_API_KEY
+    if (!apiKey) {
+      console.error('notify-bitacora: RESEND_API_KEY is not configured')
+      return res.status(500).json({ error: 'RESEND_API_KEY env var not set' })
+    }
 
     const appUrl = process.env.APP_URL ?? 'https://bitacora-erp.vercel.app'
     const fromEmail = process.env.NOTIFY_FROM_EMAIL ?? 'Bitácora ERP <onboarding@resend.dev>'
     const toEmails = (process.env.NOTIFY_EMAIL ?? '')
       .split(',')
-      .map((e) => e.trim())
+      .map((e: string) => e.trim())
       .filter(Boolean)
 
     if (toEmails.length === 0) {
@@ -286,20 +289,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const html = buildEmailHtml(type, record, old_record, appUrl)
 
-    const { data, error } = await resend.emails.send({
-      from: fromEmail,
-      to: toEmails,
-      subject,
-      html,
+    // Direct REST call to Resend API — no SDK, no module compatibility issues
+    const resendResponse = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ from: fromEmail, to: toEmails, subject, html }),
     })
 
-    if (error) {
-      console.error('notify-bitacora: Resend error', JSON.stringify(error))
-      return res.status(500).json({ error })
+    const resendData = await resendResponse.json() as { id?: string; name?: string; message?: string }
+
+    if (!resendResponse.ok) {
+      console.error('notify-bitacora: Resend API error', JSON.stringify(resendData))
+      return res.status(500).json({ error: resendData })
     }
 
-    console.log(`notify-bitacora: email sent (${type}) id=${data?.id}`)
-    return res.status(200).json({ ok: true, emailId: data?.id })
+    console.log(`notify-bitacora: email sent (${type}) id=${resendData.id}`)
+    return res.status(200).json({ ok: true, emailId: resendData.id })
 
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err)
