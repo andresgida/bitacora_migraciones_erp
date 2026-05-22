@@ -4,11 +4,11 @@ import Header from './Header'
 
 export default function AppLayout() {
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
+    <div className="min-h-screen bg-background">
       <Sidebar />
-      <div className="flex flex-1 flex-col overflow-hidden">
+      <div className="ml-64 flex flex-col min-h-screen">
         <Header />
-        <main className="flex-1 overflow-auto p-6">
+        <main className="flex-1 overflow-auto p-8">
           <Outlet />
         </main>
       </div>

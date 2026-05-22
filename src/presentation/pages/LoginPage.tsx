@@ -92,7 +92,7 @@ export default function LoginPage() {
 
           <div className="flex items-center gap-2">
             <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400/50" />
-            <span className="font-mono text-xs text-blue-300">Sistema Operativo v2.0.26</span>
+            <span className="font-mono text-xs text-blue-300">Power by Ofima S.A.S</span>
           </div>
         </div>
 

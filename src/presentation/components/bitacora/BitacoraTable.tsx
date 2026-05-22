@@ -140,7 +140,7 @@ export default function BitacoraTable({
         header: 'Fecha novedad',
         size: 110,
         cell: ({ row }) => (
-          <span className="text-xs">{formatDate(row.original.fecha_novedad)}</span>
+          <span className="text-xs text-secondary-foreground">{formatDate(row.original.fecha_novedad)}</span>
         ),
       },
       {
@@ -148,7 +148,7 @@ export default function BitacoraTable({
         header: 'Empresa',
         size: 180,
         cell: ({ row }) => (
-          <span className="font-medium text-sm">{row.original.nombre_empresa}</span>
+          <span className="font-semibold text-sm text-foreground">{row.original.nombre_empresa}</span>
         ),
       },
       {
@@ -229,11 +229,11 @@ export default function BitacoraTable({
         header: 'Acciones',
         size: 110,
         cell: ({ row }) => (
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 opacity-40 group-hover:opacity-100 transition-opacity">
             <Button
               variant="ghost"
               size="icon"
-              className="h-7 w-7"
+              className="h-7 w-7 text-muted-foreground hover:text-primary"
               onClick={() => onView(row.original)}
               title="Ver detalle"
             >
@@ -244,7 +244,7 @@ export default function BitacoraTable({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-7 w-7"
+                  className="h-7 w-7 text-muted-foreground hover:text-primary"
                   onClick={() => onEdit(row.original)}
                   title="Editar"
                 >
@@ -339,68 +339,72 @@ export default function BitacoraTable({
 
   return (
     <div className="space-y-4">
+      {/* ── Toolbar ── */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-1 items-center gap-2 flex-wrap">
-          <div className="relative flex-1 min-w-[200px] max-w-xs">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <div className="relative flex-1 min-w-[220px] max-w-xs">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Buscar empresa, descripción..."
-              className="pl-9"
+              className="pl-9 border-border bg-popover text-foreground placeholder:text-muted-foreground focus-visible:ring-primary/30 focus-visible:border-primary"
               value={search}
               onChange={(e) => onSearch(e.target.value)}
             />
           </div>
 
           <Select value={filterEstado} onValueChange={onFilterEstado}>
-            <SelectTrigger className="w-36">
+            <SelectTrigger className="w-36 border-border bg-popover text-secondary-foreground">
               <SelectValue placeholder="Estado" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="__ALL__">Todos los estados</SelectItem>
               {EstadoValues.map((v) => (
-                <SelectItem key={v} value={v}>
-                  {v}
-                </SelectItem>
+                <SelectItem key={v} value={v}>{v}</SelectItem>
               ))}
             </SelectContent>
           </Select>
 
           <Select value={filterPrioridad} onValueChange={onFilterPrioridad}>
-            <SelectTrigger className="w-40">
+            <SelectTrigger className="w-40 border-border bg-popover text-secondary-foreground">
               <SelectValue placeholder="Prioridad" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="__ALL__">Todas las prioridades</SelectItem>
               {PrioridadValues.map((v) => (
-                <SelectItem key={v} value={v}>
-                  {v}
-                </SelectItem>
+                <SelectItem key={v} value={v}>{v}</SelectItem>
               ))}
             </SelectContent>
           </Select>
 
           <Select value={filterEstadoFDS} onValueChange={onFilterEstadoFDS}>
-            <SelectTrigger className="w-36">
+            <SelectTrigger className="w-36 border-border bg-popover text-secondary-foreground">
               <SelectValue placeholder="Estado FDS" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="__ALL__">Todo FDS</SelectItem>
               {EstadoFDSValues.map((v) => (
-                <SelectItem key={v} value={v}>
-                  {v}
-                </SelectItem>
+                <SelectItem key={v} value={v}>{v}</SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
 
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={exportToExcel} className="gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={exportToExcel}
+            className="gap-2 border-border bg-secondary text-secondary-foreground hover:bg-accent hover:text-foreground"
+          >
             <Download className="h-4 w-4" />
             Exportar
           </Button>
           {isAdmin && (
-            <Button size="sm" onClick={onNew} className="gap-2">
+            <Button
+              size="sm"
+              onClick={onNew}
+              className="gap-2 bg-primary text-primary-foreground hover:brightness-110 shadow-lg shadow-primary/20"
+            >
               <Plus className="h-4 w-4" />
               Nueva incidencia
             </Button>
@@ -408,17 +412,17 @@ export default function BitacoraTable({
         </div>
       </div>
 
-      <div className="rounded-lg border overflow-hidden">
+      <div className="rounded-xl border border-border bg-card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               {table.getHeaderGroups().map((hg) => (
-                <tr key={hg.id} className="border-b bg-muted/50">
+                <tr key={hg.id} className="border-b border-border bg-secondary/50">
                   {hg.headers.map((header) => (
                     <th
                       key={header.id}
                       style={{ width: header.getSize() }}
-                      className="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground whitespace-nowrap"
+                      className="px-3 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-muted-foreground whitespace-nowrap"
                     >
                       {header.isPlaceholder ? null : (
                         <button
@@ -452,7 +456,7 @@ export default function BitacoraTable({
                 <tr>
                   <td colSpan={columns.length} className="px-3 py-12 text-center text-muted-foreground">
                     <div className="flex items-center justify-center gap-2">
-                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-muted border-t-primary" />
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-border border-t-primary" />
                       Cargando registros...
                     </div>
                   </td>
@@ -467,7 +471,7 @@ export default function BitacoraTable({
                 table.getRowModel().rows.map((row) => (
                   <tr
                     key={row.id}
-                    className="border-b transition-colors hover:bg-muted/30 cursor-pointer"
+                    className="group border-b border-border/30 transition-colors hover:bg-secondary cursor-pointer"
                     onDoubleClick={() => onView(row.original)}
                   >
                     {row.getVisibleCells().map((cell) => (
@@ -510,19 +514,19 @@ export default function BitacoraTable({
           <Button
             variant="outline"
             size="icon"
-            className="h-8 w-8"
+            className="h-8 w-8 border-border bg-secondary text-secondary-foreground hover:bg-accent"
             onClick={() => onPageChange(page - 1)}
             disabled={page <= 1}
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <span className="px-2 text-sm">
+          <span className="px-2 text-sm text-secondary-foreground">
             {page} / {totalPages || 1}
           </span>
           <Button
             variant="outline"
             size="icon"
-            className="h-8 w-8"
+            className="h-8 w-8 border-border bg-secondary text-secondary-foreground hover:bg-accent"
             onClick={() => onPageChange(page + 1)}
             disabled={page >= totalPages}
           >

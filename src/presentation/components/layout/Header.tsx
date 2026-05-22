@@ -1,58 +1,82 @@
-import { Moon, Sun, LogOut, User } from 'lucide-react'
-import { Button } from '../ui/button'
+import { Moon, Sun, Bell, Search, LogOut } from 'lucide-react'
+import { useLocation } from 'react-router-dom'
 import { useAuth } from '@/presentation/hooks/useAuth'
 import { useUIStore } from '@/presentation/stores/uiStore'
-import { cn } from '@/lib/utils'
+
+const ROUTE_LABELS: Record<string, string> = {
+  '/dashboard': 'Dashboard',
+  '/bitacora': 'Bitácora',
+  '/catalogos': 'Catálogos',
+}
 
 export default function Header() {
   const { profile, signOut } = useAuth()
   const { darkMode, toggleDarkMode } = useUIStore()
+  const { pathname } = useLocation()
+
+  const routeLabel = ROUTE_LABELS[pathname] ?? 'Inicio'
+  const initials = (profile?.full_name ?? profile?.email ?? 'U')
+    .split(' ')
+    .map((w) => w[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase()
 
   return (
-    <header className="flex h-16 shrink-0 items-center justify-between border-b border-border bg-background px-6">
-      <div className="flex items-center gap-3">
-        <div>
-          <h1 className="text-sm font-semibold text-foreground">Bitácora Migraciones 2026</h1>
-          <p className="text-xs text-muted-foreground">Sistema de gestión de incidencias ERP</p>
+    <header className="sticky top-0 z-40 flex h-16 shrink-0 items-center justify-between border-b border-border bg-background px-8">
+      {/* Breadcrumbs */}
+      <nav className="flex items-center gap-1 text-sm text-muted-foreground">
+        <span>Bitácora</span>
+        <span className="text-border">/</span>
+        <span className="font-semibold text-primary border-b-2 border-primary pb-0.5">{routeLabel}</span>
+      </nav>
+
+      {/* Right actions */}
+      <div className="flex items-center gap-5">
+        {/* Search */}
+        <div className="flex items-center gap-2 rounded-full border border-border bg-popover px-4 py-1.5">
+          <Search className="h-3.5 w-3.5 text-muted-foreground" />
+          <input
+            placeholder="Buscar..."
+            className="w-40 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
+          />
         </div>
-      </div>
 
-      <div className="flex items-center gap-2">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={toggleDarkMode}
-          title={darkMode ? 'Modo claro' : 'Modo oscuro'}
-        >
-          {darkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-        </Button>
+        {/* Icon buttons */}
+        <div className="flex items-center gap-1">
+          <button
+            onClick={toggleDarkMode}
+            title={darkMode ? 'Modo claro' : 'Modo oscuro'}
+            className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+          >
+            {darkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </button>
+          <button className="relative rounded-full p-2 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground">
+            <Bell className="h-4 w-4" />
+            <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-red-500" />
+          </button>
+        </div>
 
-        <div className="flex items-center gap-2 pl-2 border-l border-border">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
-            <User className="h-4 w-4 text-primary" />
-          </div>
-          <div className="hidden sm:block">
-            <p className="text-sm font-medium text-foreground leading-none">
-              {profile?.full_name ?? profile?.email ?? 'Usuario'}
+        {/* User info */}
+        <div className="flex items-center gap-3 border-l border-border pl-5">
+          <div className="hidden text-right sm:block">
+            <p className="text-sm font-semibold leading-tight text-foreground">
+              {profile?.email ?? 'Usuario'}
             </p>
-            <p
-              className={cn(
-                'text-xs mt-0.5',
-                profile?.role === 'admin' ? 'text-primary font-medium' : 'text-muted-foreground',
-              )}
-            >
+            <p className="text-[10px] font-bold uppercase tracking-wider text-primary">
               {profile?.role === 'admin' ? 'Administrador' : 'Solo lectura'}
             </p>
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 border-sidebar-accent bg-primary text-xs font-bold text-primary-foreground">
+            {initials}
+          </div>
+          <button
             onClick={signOut}
             title="Cerrar sesión"
-            className="text-muted-foreground hover:text-destructive"
+            className="rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-secondary hover:text-red-400"
           >
             <LogOut className="h-4 w-4" />
-          </Button>
+          </button>
         </div>
       </div>
     </header>

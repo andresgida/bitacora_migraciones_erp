@@ -1,9 +1,6 @@
 import { useState } from 'react'
-import { Plus, Pencil, Trash2, ToggleLeft, ToggleRight, Settings2 } from 'lucide-react'
-import { Button } from '@/presentation/components/ui/button'
-import { Input } from '@/presentation/components/ui/input'
+import { Plus, Pencil, Trash2, Eye, EyeOff, ListFilter } from 'lucide-react'
 import { Label } from '@/presentation/components/ui/label'
-import { Badge } from '@/presentation/components/ui/badge'
 import {
   Dialog,
   DialogContent,
@@ -92,140 +89,138 @@ export default function CatalogPage() {
     setDeleteItem(null)
   }
 
+  const categoryLabel = CATALOG_CATEGORIES[selectedCategory]
+
   return (
-    <div className="flex h-full gap-4 animate-fade-in">
-      {/* Category sidebar */}
-      <aside className="w-64 shrink-0 rounded-xl border bg-card p-3 space-y-1 self-start sticky top-0">
-        <div className="flex items-center gap-2 px-2 py-1.5 mb-2">
-          <Settings2 className="h-4 w-4 text-muted-foreground" />
-          <span className="text-sm font-semibold text-foreground">Catálogos</span>
-        </div>
+    <div className="flex gap-5 animate-fade-in items-start">
+      {/* ── Category sidebar ── */}
+      <aside className="w-56 shrink-0 rounded-xl border border-border bg-popover p-3 self-start sticky top-0">
+        <p className="flex items-center gap-2 px-2 py-1.5 mb-1 text-xs font-semibold uppercase tracking-wider text-primary">
+          <ListFilter className="h-3.5 w-3.5" />
+          Catálogos
+        </p>
         {Object.entries(CATALOG_CATEGORIES).map(([key, label]) => (
           <button
             key={key}
             onClick={() => { setSelectedCategory(key); setSearch('') }}
             className={cn(
-              'flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm transition-colors',
+              'flex w-full items-center justify-between rounded-lg px-2 py-2 text-sm transition-colors',
               selectedCategory === key
-                ? 'bg-primary text-primary-foreground font-medium'
-                : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+                ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium'
+                : 'text-secondary-foreground hover:bg-secondary hover:text-foreground',
             )}
           >
             <span className="truncate">{label}</span>
-            <Badge
-              variant="secondary"
-              className={cn(
-                'ml-2 shrink-0 text-xs h-5 px-1.5',
-                selectedCategory === key && 'bg-primary-foreground/20 text-primary-foreground',
-              )}
-            >
+            <span className={cn('text-xs ml-2', selectedCategory === key ? 'text-primary font-bold' : 'opacity-40')}>
               {counts[key] ?? 0}
-            </Badge>
+            </span>
           </button>
         ))}
       </aside>
 
-      {/* Items panel */}
+      {/* ── Items panel ── */}
       <div className="flex-1 flex flex-col gap-4 min-w-0">
-        {/* Header */}
-        <div className="flex items-center justify-between">
+        {/* Page header */}
+        <div className="flex items-end justify-between">
           <div>
-            <h1 className="text-xl font-semibold text-foreground">
-              {CATALOG_CATEGORIES[selectedCategory]}
-            </h1>
+            <h1 className="text-2xl font-bold text-foreground">{categoryLabel}</h1>
             <p className="text-sm text-muted-foreground">
-              {filteredItems.length} elementos
+              {items.length} elementos registrados en el catálogo maestro.
             </p>
           </div>
           {isAdmin() && (
-            <Button onClick={openCreate} className="gap-2">
+            <button
+              onClick={openCreate}
+              className="flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:brightness-110 active:scale-95"
+            >
               <Plus className="h-4 w-4" />
-              Agregar
-            </Button>
+              Agregar {categoryLabel}
+            </button>
           )}
         </div>
 
-        {/* Search */}
-        <Input
-          placeholder={`Buscar en ${CATALOG_CATEGORIES[selectedCategory]}...`}
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="max-w-sm"
-        />
-
-        {/* Table */}
-        <div className="rounded-xl border bg-card overflow-hidden">
-          {isLoading ? (
-            <div className="flex justify-center py-16">
-              <LoadingSpinner size="md" />
+        {/* Table card */}
+        <div className="rounded-xl border border-border bg-card overflow-hidden">
+          {/* Search bar */}
+          <div className="flex items-center gap-3 border-b border-border p-4">
+            <div className="relative flex-1">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </span>
+              <input
+                placeholder={`Buscar en ${categoryLabel}...`}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full rounded-lg border border-border bg-background py-2 pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground outline-none transition focus:border-primary focus:ring-1 focus:ring-primary/30"
+              />
             </div>
+          </div>
+
+          {/* Table */}
+          {isLoading ? (
+            <div className="flex justify-center py-16"><LoadingSpinner size="md" /></div>
           ) : filteredItems.length === 0 ? (
             <div className="py-16 text-center text-sm text-muted-foreground">
-              {search ? 'Sin resultados para la búsqueda' : 'No hay elementos en este catálogo'}
+              {search ? 'Sin resultados' : 'No hay elementos en este catálogo'}
             </div>
           ) : (
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b bg-muted/40">
-                  <th className="px-4 py-3 text-left font-medium text-muted-foreground w-12">#</th>
-                  <th className="px-4 py-3 text-left font-medium text-muted-foreground">Valor</th>
-                  <th className="px-4 py-3 text-center font-medium text-muted-foreground w-24">Orden</th>
-                  <th className="px-4 py-3 text-center font-medium text-muted-foreground w-24">Estado</th>
+                <tr className="border-b border-border bg-secondary/50">
+                  <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-muted-foreground w-14">#</th>
+                  <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Valor</th>
+                  <th className="px-4 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-muted-foreground w-20">Orden</th>
+                  <th className="px-4 py-3 text-center text-[11px] font-semibold uppercase tracking-wider text-muted-foreground w-28">Estado</th>
                   {isAdmin() && (
-                    <th className="px-4 py-3 text-right font-medium text-muted-foreground w-28">Acciones</th>
+                    <th className="px-4 py-3 text-right text-[11px] font-semibold uppercase tracking-wider text-muted-foreground w-28 pr-5">Acciones</th>
                   )}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border">
+              <tbody className="divide-y divide-border/30">
                 {filteredItems.map((item, idx) => (
                   <tr
                     key={item.id}
-                    className={cn(
-                      'transition-colors hover:bg-muted/30',
-                      !item.active && 'opacity-50',
-                    )}
+                    className={cn('group transition-colors hover:bg-secondary', !item.active && 'opacity-50')}
                   >
-                    <td className="px-4 py-3 text-muted-foreground">{idx + 1}</td>
-                    <td className="px-4 py-3 font-medium text-foreground">{item.value}</td>
-                    <td className="px-4 py-3 text-center text-muted-foreground">{item.order_index}</td>
-                    <td className="px-4 py-3 text-center">
-                      <Badge variant={item.active ? 'default' : 'secondary'} className="text-xs">
+                    <td className="px-4 py-3.5 font-mono text-xs text-muted-foreground">{idx + 1}</td>
+                    <td className="px-4 py-3.5 font-semibold text-foreground">{item.value}</td>
+                    <td className="px-4 py-3.5 text-center font-mono text-xs text-muted-foreground">{item.order_index}</td>
+                    <td className="px-4 py-3.5 text-center">
+                      <span className={cn(
+                        'rounded-full border px-2.5 py-0.5 text-[10px] font-black uppercase',
+                        item.active
+                          ? 'border-primary/20 bg-primary/10 text-primary'
+                          : 'border-border bg-secondary text-muted-foreground',
+                      )}>
                         {item.active ? 'Activo' : 'Inactivo'}
-                      </Badge>
+                      </span>
                     </td>
                     {isAdmin() && (
-                      <td className="px-4 py-3">
-                        <div className="flex items-center justify-end gap-1">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7"
+                      <td className="px-4 py-3.5 pr-5">
+                        <div className="flex items-center justify-end gap-2 opacity-30 transition-opacity group-hover:opacity-100">
+                          <button
                             title={item.active ? 'Desactivar' : 'Activar'}
                             onClick={() => handleToggleActive(item)}
+                            className="text-muted-foreground transition-colors hover:text-primary"
                           >
-                            {item.active
-                              ? <ToggleRight className="h-4 w-4 text-primary" />
-                              : <ToggleLeft className="h-4 w-4 text-muted-foreground" />
-                            }
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7"
+                            {item.active ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                          </button>
+                          <button
                             title="Editar"
                             onClick={() => openEdit(item)}
+                            className="text-muted-foreground transition-colors hover:text-primary"
                           >
-                            <Pencil className="h-3.5 w-3.5" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7 text-destructive hover:text-destructive"
+                            <Pencil className="h-4 w-4" />
+                          </button>
+                          <button
                             title="Eliminar"
                             onClick={() => setDeleteItem(item)}
+                            className="text-muted-foreground transition-colors hover:text-red-400"
                           >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </Button>
+                            <Trash2 className="h-4 w-4" />
+                          </button>
                         </div>
                       </td>
                     )}
@@ -237,52 +232,58 @@ export default function CatalogPage() {
         </div>
       </div>
 
-      {/* Add / Edit dialog */}
+      {/* ── Add / Edit dialog ── */}
       <Dialog open={formOpen} onOpenChange={(v) => !v && setFormOpen(false)}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
             <DialogTitle>
-              {editItem ? 'Editar elemento' : `Agregar a ${CATALOG_CATEGORIES[selectedCategory]}`}
+              {editItem ? 'Editar elemento' : `Agregar a ${categoryLabel}`}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="space-y-1.5">
               <Label htmlFor="catalog-value">Valor</Label>
-              <Input
+              <input
                 id="catalog-value"
                 placeholder="Nombre del elemento"
                 value={formValue}
                 onChange={(e) => setFormValue(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleFormSubmit()}
                 autoFocus
+                className="w-full rounded-lg border border-border bg-popover px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary/30"
               />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="catalog-order">Orden</Label>
-              <Input
+              <input
                 id="catalog-order"
                 type="number"
                 min="0"
                 value={formOrderIndex}
                 onChange={(e) => setFormOrderIndex(e.target.value)}
+                className="w-full rounded-lg border border-border bg-popover px-3 py-2 text-sm text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary/30"
               />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setFormOpen(false)}>
+            <button
+              onClick={() => setFormOpen(false)}
+              className="rounded-lg border border-border px-4 py-2 text-sm text-secondary-foreground transition-colors hover:bg-secondary"
+            >
               Cancelar
-            </Button>
-            <Button
+            </button>
+            <button
               onClick={handleFormSubmit}
               disabled={!formValue.trim() || creating || updating}
+              className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110 disabled:opacity-50"
             >
               {editItem ? 'Guardar' : 'Agregar'}
-            </Button>
+            </button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Delete confirm */}
+      {/* ── Delete confirm ── */}
       <AlertDialog open={!!deleteItem} onOpenChange={(v) => !v && setDeleteItem(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>

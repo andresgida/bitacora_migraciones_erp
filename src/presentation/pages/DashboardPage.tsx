@@ -8,7 +8,6 @@ import {
   Building2,
 } from 'lucide-react'
 import StatsCard from '@/presentation/components/dashboard/StatsCard'
-import { Card, CardContent, CardHeader, CardTitle } from '@/presentation/components/ui/card'
 import { useDashboardMetrics } from '@/presentation/hooks/useDashboard'
 import LoadingSpinner from '@/presentation/components/common/LoadingSpinner'
 import { cn } from '@/lib/utils'
@@ -70,54 +69,50 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-semibold flex items-center gap-2">
-              <Activity className="h-4 w-4 text-primary" />
-              Por Estado
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
+        {/* Por Estado */}
+        <div className="rounded-xl border border-border bg-popover p-5">
+          <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-foreground">
+            <Activity className="h-4 w-4 text-primary" />
+            Por Estado
+          </h3>
+          <div className="space-y-3">
             {Object.entries(byEstado).length === 0 ? (
               <p className="text-sm text-muted-foreground">Sin datos</p>
             ) : (
               Object.entries(byEstado)
                 .sort(([, a], [, b]) => b - a)
                 .map(([estado, count]) => (
-                  <div key={estado} className="flex items-center justify-between">
+                  <div key={estado} className="flex items-center justify-between gap-3">
                     <span
                       className={cn(
-                        'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium',
-                        ESTADO_COLORS[estado] ?? 'bg-muted text-muted-foreground',
+                        'inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-xs font-medium',
+                        ESTADO_COLORS[estado] ?? 'bg-secondary text-muted-foreground',
                       )}
                     >
                       {estado}
                     </span>
-                    <div className="flex items-center gap-2">
-                      <div className="h-1.5 w-24 overflow-hidden rounded-full bg-muted">
+                    <div className="flex flex-1 items-center gap-2">
+                      <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-secondary">
                         <div
-                          className="h-full bg-primary rounded-full"
-                          style={{
-                            width: `${((count / (metrics?.total ?? 1)) * 100).toFixed(0)}%`,
-                          }}
+                          className="h-full rounded-full bg-primary"
+                          style={{ width: `${((count / (metrics?.total ?? 1)) * 100).toFixed(0)}%` }}
                         />
                       </div>
-                      <span className="text-sm font-semibold tabular-nums">{count}</span>
+                      <span className="text-sm font-semibold tabular-nums text-foreground">{count}</span>
                     </div>
                   </div>
                 ))
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-semibold flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-primary" />
-              Por Prioridad
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
+        {/* Por Prioridad */}
+        <div className="rounded-xl border border-border bg-popover p-5">
+          <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-foreground">
+            <TrendingUp className="h-4 w-4 text-primary" />
+            Por Prioridad
+          </h3>
+          <div className="space-y-3">
             {Object.entries(byPrioridad).length === 0 ? (
               <p className="text-sm text-muted-foreground">Sin datos</p>
             ) : (
@@ -125,71 +120,66 @@ export default function DashboardPage() {
                 .sort(([, a], [, b]) => b - a)
                 .slice(0, 6)
                 .map(([prioridad, count]) => (
-                  <div key={prioridad} className="flex items-center justify-between">
+                  <div key={prioridad} className="flex items-center justify-between gap-3">
                     <span
                       className={cn(
-                        'inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-semibold',
-                        PRIORIDAD_COLORS[prioridad] ?? 'bg-muted text-muted-foreground border-transparent',
+                        'inline-flex shrink-0 items-center rounded-full border px-2 py-0.5 text-xs font-semibold',
+                        PRIORIDAD_COLORS[prioridad] ?? 'border-border bg-secondary text-muted-foreground',
                       )}
                     >
                       {prioridad}
                     </span>
-                    <div className="flex items-center gap-2">
-                      <div className="h-1.5 w-24 overflow-hidden rounded-full bg-muted">
+                    <div className="flex flex-1 items-center gap-2">
+                      <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-secondary">
                         <div
-                          className="h-full bg-primary rounded-full"
-                          style={{
-                            width: `${((count / (metrics?.total ?? 1)) * 100).toFixed(0)}%`,
-                          }}
+                          className="h-full rounded-full bg-primary"
+                          style={{ width: `${((count / (metrics?.total ?? 1)) * 100).toFixed(0)}%` }}
                         />
                       </div>
-                      <span className="text-sm font-semibold tabular-nums">{count}</span>
+                      <span className="text-sm font-semibold tabular-nums text-foreground">{count}</span>
                     </div>
                   </div>
                 ))
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-semibold flex items-center gap-2">
-              <Building2 className="h-4 w-4 text-primary" />
-              Estado FDS
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
+        {/* Estado FDS */}
+        <div className="rounded-xl border border-border bg-popover p-5">
+          <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-foreground">
+            <Building2 className="h-4 w-4 text-primary" />
+            Estado FDS
+          </h3>
+          <div className="space-y-3">
             {Object.entries(byEstadoFDS).length === 0 ? (
               <p className="text-sm text-muted-foreground">Sin datos</p>
             ) : (
               Object.entries(byEstadoFDS)
                 .sort(([, a], [, b]) => b - a)
                 .map(([estado, count]) => (
-                  <div key={estado} className="flex items-center justify-between">
+                  <div key={estado} className="flex items-center justify-between gap-3">
                     <span
                       className={cn(
-                        'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium',
-                        ESTADO_FDS_COLORS[estado] ?? 'bg-muted text-muted-foreground',
+                        'inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-xs font-medium',
+                        ESTADO_FDS_COLORS[estado] ?? 'bg-secondary text-muted-foreground',
                       )}
                     >
                       {estado}
                     </span>
-                    <div className="flex items-center gap-2">
-                      <div className="h-1.5 w-24 overflow-hidden rounded-full bg-muted">
+                    <div className="flex flex-1 items-center gap-2">
+                      <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-secondary">
                         <div
-                          className="h-full bg-primary rounded-full"
-                          style={{
-                            width: `${((count / (metrics?.total ?? 1)) * 100).toFixed(0)}%`,
-                          }}
+                          className="h-full rounded-full bg-primary"
+                          style={{ width: `${((count / (metrics?.total ?? 1)) * 100).toFixed(0)}%` }}
                         />
                       </div>
-                      <span className="text-sm font-semibold tabular-nums">{count}</span>
+                      <span className="text-sm font-semibold tabular-nums text-foreground">{count}</span>
                     </div>
                   </div>
                 ))
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   )
