@@ -231,60 +231,79 @@ function buildEmailHtml(
 // ── Handler ───────────────────────────────────────────────────────────────────
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' })
+  try {
+    if (req.method !== 'POST') {
+      return res.status(405).json({ error: 'Method not allowed' })
+    }
+
+    // Verify webhook secret
+    const incomingSecret = req.headers['x-webhook-secret']
+    const expectedSecret = process.env.WEBHOOK_SECRET
+    if (!expectedSecret || incomingSecret !== expectedSecret) {
+      console.warn('notify-bitacora: unauthorized request')
+      return res.status(401).json({ error: 'Unauthorized' })
+    }
+
+    // Debug: log env vars presence (never log actual values)
+    console.log('notify-bitacora env check:', {
+      hasApiKey: !!process.env.RESEND_API_KEY,
+      hasNotifyEmail: !!process.env.NOTIFY_EMAIL,
+      hasFromEmail: !!process.env.NOTIFY_FROM_EMAIL,
+      hasAppUrl: !!process.env.APP_URL,
+    })
+
+    const payload = req.body as SupabaseWebhookPayload
+
+    if (!payload || !payload.type) {
+      return res.status(400).json({ error: 'Invalid payload' })
+    }
+
+    // Skip DELETE events
+    if (payload.type === 'DELETE') {
+      return res.status(200).json({ ok: true, skipped: 'DELETE event ignored' })
+    }
+
+    const { type, record, old_record } = payload
+
+    const resend = new Resend(process.env.RESEND_API_KEY)
+
+    const appUrl = process.env.APP_URL ?? 'https://bitacora-erp.vercel.app'
+    const fromEmail = process.env.NOTIFY_FROM_EMAIL ?? 'Bitácora ERP <onboarding@resend.dev>'
+    const toEmails = (process.env.NOTIFY_EMAIL ?? '')
+      .split(',')
+      .map((e) => e.trim())
+      .filter(Boolean)
+
+    if (toEmails.length === 0) {
+      console.error('notify-bitacora: NOTIFY_EMAIL is not configured')
+      return res.status(500).json({ error: 'NOTIFY_EMAIL env var not set' })
+    }
+
+    const subject =
+      type === 'INSERT'
+        ? `[Bitácora] Nueva incidencia — ${record.nombre_empresa}`
+        : `[Bitácora] Incidencia actualizada — ${record.nombre_empresa} (#${record.id})`
+
+    const html = buildEmailHtml(type, record, old_record, appUrl)
+
+    const { data, error } = await resend.emails.send({
+      from: fromEmail,
+      to: toEmails,
+      subject,
+      html,
+    })
+
+    if (error) {
+      console.error('notify-bitacora: Resend error', JSON.stringify(error))
+      return res.status(500).json({ error })
+    }
+
+    console.log(`notify-bitacora: email sent (${type}) id=${data?.id}`)
+    return res.status(200).json({ ok: true, emailId: data?.id })
+
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err)
+    console.error('notify-bitacora: unhandled exception:', message)
+    return res.status(500).json({ error: message })
   }
-
-  // Verify webhook secret
-  const incomingSecret = req.headers['x-webhook-secret']
-  const expectedSecret = process.env.WEBHOOK_SECRET
-  if (!expectedSecret || incomingSecret !== expectedSecret) {
-    console.warn('notify-bitacora: unauthorized request')
-    return res.status(401).json({ error: 'Unauthorized' })
-  }
-
-  const payload = req.body as SupabaseWebhookPayload
-
-  // Skip DELETE events
-  if (payload.type === 'DELETE') {
-    return res.status(200).json({ ok: true, skipped: 'DELETE event ignored' })
-  }
-
-  const { type, record, old_record } = payload
-
-  const resend = new Resend(process.env.RESEND_API_KEY)
-
-  const appUrl = process.env.APP_URL ?? 'https://bitacora-erp.vercel.app'
-  const fromEmail = process.env.NOTIFY_FROM_EMAIL ?? 'Bitácora ERP <noreply@resend.dev>'
-  const toEmails = (process.env.NOTIFY_EMAIL ?? '')
-    .split(',')
-    .map((e) => e.trim())
-    .filter(Boolean)
-
-  if (toEmails.length === 0) {
-    console.error('notify-bitacora: NOTIFY_EMAIL is not configured')
-    return res.status(500).json({ error: 'NOTIFY_EMAIL env var not set' })
-  }
-
-  const subject =
-    type === 'INSERT'
-      ? `[Bitácora] Nueva incidencia — ${record.nombre_empresa}`
-      : `[Bitácora] Incidencia actualizada — ${record.nombre_empresa} (#${record.id})`
-
-  const html = buildEmailHtml(type, record, old_record, appUrl)
-
-  const { data, error } = await resend.emails.send({
-    from: fromEmail,
-    to: toEmails,
-    subject,
-    html,
-  })
-
-  if (error) {
-    console.error('notify-bitacora: Resend error', error)
-    return res.status(500).json({ error })
-  }
-
-  console.log(`notify-bitacora: email sent (${type}) id=${data?.id}`)
-  return res.status(200).json({ ok: true, emailId: data?.id })
 }
