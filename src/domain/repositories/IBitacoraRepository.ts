@@ -1,0 +1,55 @@
+import type { Bitacora, BitacoraCreate, BitacoraUpdate } from '../entities/Bitacora'
+
+export interface BitacoraFilters {
+  search?: string
+  nombre_empresa?: string
+  estado?: string
+  prioridad_servicio?: string
+  csm?: string
+  lider_novedad?: string
+  suite?: string
+  modulo?: string
+  solucionado?: boolean
+  estado_fds?: string
+  fecha_desde?: string
+  fecha_hasta?: string
+}
+
+export interface PaginationParams {
+  page: number
+  pageSize: number
+}
+
+export interface PaginatedResult<T> {
+  data: T[]
+  total: number
+  page: number
+  pageSize: number
+  totalPages: number
+}
+
+export interface IBitacoraRepository {
+  getAll(
+    filters?: BitacoraFilters,
+    pagination?: PaginationParams,
+    orderBy?: keyof Bitacora,
+    orderDir?: 'asc' | 'desc',
+  ): Promise<PaginatedResult<Bitacora>>
+
+  getById(id: number): Promise<Bitacora | null>
+
+  create(data: BitacoraCreate): Promise<Bitacora>
+
+  update(id: number, data: BitacoraUpdate): Promise<Bitacora>
+
+  delete(id: number): Promise<void>
+
+  getDashboardMetrics(): Promise<{
+    total: number
+    byEstado: Record<string, number>
+    byPrioridad: Record<string, number>
+    byEstadoFDS: Record<string, number>
+    solucionados: number
+    pendientes: number
+  }>
+}

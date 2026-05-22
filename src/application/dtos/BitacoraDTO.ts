@@ -1,0 +1,45 @@
+import { z } from 'zod'
+import {
+  EstadoValues,
+  PrioridadValues,
+  EstadoFDSValues,
+  SuiteValues,
+  ModuloValues,
+  ClasificacionValues,
+  VersionAnteriorValues,
+  CSMValues,
+  LiderNovedadValues,
+  EncargadoFDSValues,
+  SegmentacionFDSValues,
+  ImpactoFDSValues,
+} from '@/domain/value-objects/enums'
+
+export const BitacoraFormSchema = z.object({
+  fecha_novedad: z.string().nullable().optional(),
+  fecha_definiciones: z.string().nullable().optional(),
+  nombre_empresa: z.string().min(1, 'La empresa es requerida'),
+  estado: z.enum(EstadoValues).nullable().optional(),
+  base_datos: z.string().nullable().optional(),
+  csm: z.enum(CSMValues).nullable().optional(),
+  lider_novedad: z.enum(LiderNovedadValues).nullable().optional(),
+  suite: z.enum(SuiteValues).nullable().optional(),
+  modulo: z.enum(ModuloValues).nullable().optional(),
+  clasificacion: z.enum(ClasificacionValues).nullable().optional(),
+  version_anterior: z.enum(VersionAnteriorValues).nullable().optional(),
+  descripcion_error: z.string().nullable().optional(),
+  imagen_1_url: z.string().nullable().optional(),
+  imagen_2_url: z.string().nullable().optional(),
+  link_video: z.string().url('URL inválida').nullable().optional().or(z.literal('')),
+  prioridad_servicio: z.enum(PrioridadValues).nullable().optional(),
+  solucionado: z.boolean().default(false),
+  observacion_formacion: z.string().nullable().optional(),
+  fecha_tentativa_solucion: z.string().nullable().optional(),
+  estado_fds: z.enum(EstadoFDSValues).nullable().optional(),
+  observaciones_fds: z.string().nullable().optional(),
+  encargado_fds: z.enum(EncargadoFDSValues).nullable().optional(),
+  azure_url: z.string().url('URL inválida').nullable().optional().or(z.literal('')),
+  segmentacion_fds: z.enum(SegmentacionFDSValues).nullable().optional(),
+  impacto_fds: z.enum(ImpactoFDSValues).nullable().optional(),
+})
+
+export type BitacoraFormData = z.infer<typeof BitacoraFormSchema>
