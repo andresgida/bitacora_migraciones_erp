@@ -227,26 +227,32 @@ function buildEmailHtml(
 </html>`
 }
 
-// ── Email sender helper ───────────────────────────────────────────────────────
+// ── Email sender helper (Brevo) ──────────────────────────────────────────────
 
 async function sendEmail(opts: {
   apiKey: string
-  from: string
+  fromName: string
+  fromEmail: string
   to: string[]
   subject: string
   html: string
 }): Promise<{ id?: string; error?: unknown }> {
-  const res = await fetch('https://api.resend.com/emails', {
+  const res = await fetch('https://api.brevo.com/v3/smtp/email', {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${opts.apiKey}`,
+      'api-key': opts.apiKey,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ from: opts.from, to: opts.to, subject: opts.subject, html: opts.html }),
+    body: JSON.stringify({
+      sender: { name: opts.fromName, email: opts.fromEmail },
+      to: opts.to.map((email: string) => ({ email })),
+      subject: opts.subject,
+      htmlContent: opts.html,
+    }),
   })
-  const data = await res.json() as { id?: string; name?: string; message?: string }
+  const data = await res.json() as { messageId?: string; code?: string; message?: string }
   if (!res.ok) return { error: data }
-  return { id: data.id }
+  return { id: data.messageId }
 }
 
 // ── Targeted email templates ──────────────────────────────────────────────────
@@ -340,14 +346,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(200).json({ ok: true, skipped: 'DELETE ignored' })
     }
 
-    const apiKey = process.env.RESEND_API_KEY
+    const apiKey = process.env.BREVO_API_KEY
     if (!apiKey) {
-      return res.status(500).json({ error: 'RESEND_API_KEY env var not set' })
+      return res.status(500).json({ error: 'BREVO_API_KEY env var not set' })
     }
 
     const { type, record, old_record } = payload
     const appUrl = process.env.APP_URL ?? 'https://bitacora-erp.vercel.app'
-    const fromEmail = process.env.NOTIFY_FROM_EMAIL ?? 'Bitácora ERP <onboarding@resend.dev>'
+    const fromName = 'Bitácora ERP'
+    const fromEmail = process.env.NOTIFY_FROM_EMAIL ?? 'agomez@ofima.com'
 
     const sent: string[] = []
     const errors: unknown[] = []
@@ -357,7 +364,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const toEmails = (process.env.NOTIFY_EMAIL ?? '').split(',').map((e: string) => e.trim()).filter(Boolean)
       if (toEmails.length > 0) {
         const result = await sendEmail({
-          apiKey, from: fromEmail, to: toEmails,
+          apiKey, fromName, fromEmail, to: toEmails,
           subject: `[Bitácora] Nueva incidencia — ${record.nombre_empresa}`,
           html: buildEmailHtml('INSERT', record, null, appUrl),
         })
@@ -375,7 +382,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const toEmails = (process.env.NOTIFY_EMAIL_FDS_SOLUCIONADO ?? '').split(',').map((e: string) => e.trim()).filter(Boolean)
       if (toEmails.length > 0) {
         const result = await sendEmail({
-          apiKey, from: fromEmail, to: toEmails,
+          apiKey, fromName, fromEmail, to: toEmails,
           subject: `[Bitácora] ✅ FDS Solucionado — ${record.nombre_empresa} (#${record.id})`,
           html: buildFdsSolucionadoHtml(record, appUrl),
         })
@@ -395,7 +402,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const toEmails = (process.env.NOTIFY_EMAIL_SUSPENDIDO ?? '').split(',').map((e: string) => e.trim()).filter(Boolean)
       if (toEmails.length > 0) {
         const result = await sendEmail({
-          apiKey, from: fromEmail, to: toEmails,
+          apiKey, fromName, fromEmail, to: toEmails,
           subject: `[Bitácora] ⚠️ Empresa Suspendida — ${record.nombre_empresa} (#${record.id})`,
           html: buildSuspendidoHtml(record, appUrl),
         })
