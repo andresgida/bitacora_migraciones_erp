@@ -227,6 +227,95 @@ function buildEmailHtml(
 </html>`
 }
 
+// ── Email sender helper ───────────────────────────────────────────────────────
+
+async function sendEmail(opts: {
+  apiKey: string
+  from: string
+  to: string[]
+  subject: string
+  html: string
+}): Promise<{ id?: string; error?: unknown }> {
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${opts.apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ from: opts.from, to: opts.to, subject: opts.subject, html: opts.html }),
+  })
+  const data = await res.json() as { id?: string; name?: string; message?: string }
+  if (!res.ok) return { error: data }
+  return { id: data.id }
+}
+
+// ── Targeted email templates ──────────────────────────────────────────────────
+
+function buildFdsSolucionadoHtml(record: BitacoraRecord, appUrl: string): string {
+  return `<!DOCTYPE html>
+<html lang="es">
+<head><meta charset="UTF-8"></head>
+<body style="margin:0;padding:0;background:#f8fafc;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 20px;">
+    <tr><td align="center">
+      <table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;">
+        <tr>
+          <td style="background:#fff;border:1px solid #e2e8f0;border-top:4px solid #16a34a;border-radius:8px;padding:32px;">
+            <p style="margin:0 0 4px;font-size:12px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:#16a34a;">✅ FDS Solucionado</p>
+            <h1 style="margin:0 0 6px;font-size:20px;font-weight:700;color:#0f172a;">${record.nombre_empresa}</h1>
+            <p style="margin:0 0 24px;font-size:14px;color:#64748b;">Incidencia #${record.id} · ${fmtDate(record.fecha_novedad)}</p>
+            <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;border-top:1px solid #f1f5f9;">
+              <tr><td style="padding:10px 0;color:#64748b;font-size:13px;width:150px;">CSM</td><td style="padding:10px 0;font-size:13px;color:#0f172a;">${fmt(record.csm)}</td></tr>
+              <tr style="background:#f8fafc;"><td style="padding:10px 4px;color:#64748b;font-size:13px;">Encargado FDS</td><td style="padding:10px 0;font-size:13px;color:#0f172a;">${fmt(record.encargado_fds)}</td></tr>
+              <tr><td style="padding:10px 0;color:#64748b;font-size:13px;">Suite / Módulo</td><td style="padding:10px 0;font-size:13px;color:#0f172a;">${fmt(record.suite)} / ${fmt(record.modulo)}</td></tr>
+              <tr style="background:#f8fafc;"><td style="padding:10px 4px;color:#64748b;font-size:13px;">Observaciones</td><td style="padding:10px 0;font-size:13px;color:#0f172a;">${fmt(record.observaciones_fds)}</td></tr>
+            </table>
+            <div style="margin-top:24px;">
+              <a href="${appUrl}/bitacora" style="display:inline-block;background:#16a34a;color:#fff;font-size:14px;font-weight:600;padding:10px 24px;border-radius:6px;text-decoration:none;">Ver incidencia →</a>
+            </div>
+          </td>
+        </tr>
+        <tr><td style="padding:16px 0;text-align:center;font-size:12px;color:#94a3b8;">Bitácora ERP · notificación automática</td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`
+}
+
+function buildSuspendidoHtml(record: BitacoraRecord, appUrl: string): string {
+  return `<!DOCTYPE html>
+<html lang="es">
+<head><meta charset="UTF-8"></head>
+<body style="margin:0;padding:0;background:#f8fafc;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 20px;">
+    <tr><td align="center">
+      <table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;">
+        <tr>
+          <td style="background:#fff;border:1px solid #e2e8f0;border-top:4px solid #dc2626;border-radius:8px;padding:32px;">
+            <p style="margin:0 0 4px;font-size:12px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:#dc2626;">⚠️ Empresa Suspendida</p>
+            <h1 style="margin:0 0 6px;font-size:20px;font-weight:700;color:#0f172a;">${record.nombre_empresa}</h1>
+            <p style="margin:0 0 24px;font-size:14px;color:#64748b;">Incidencia #${record.id} · ${fmtDate(record.fecha_novedad)}</p>
+            <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;border-top:1px solid #f1f5f9;">
+              <tr><td style="padding:10px 0;color:#64748b;font-size:13px;width:150px;">CSM</td><td style="padding:10px 0;font-size:13px;color:#0f172a;">${fmt(record.csm)}</td></tr>
+              <tr style="background:#f8fafc;"><td style="padding:10px 4px;color:#64748b;font-size:13px;">Prioridad</td><td style="padding:10px 0;font-size:13px;color:#0f172a;">${fmt(record.prioridad_servicio)}</td></tr>
+              <tr><td style="padding:10px 0;color:#64748b;font-size:13px;">Suite / Módulo</td><td style="padding:10px 0;font-size:13px;color:#0f172a;">${fmt(record.suite)} / ${fmt(record.modulo)}</td></tr>
+              <tr style="background:#f8fafc;"><td style="padding:10px 4px;color:#64748b;font-size:13px;">Base de datos</td><td style="padding:10px 0;font-size:13px;color:#0f172a;">${fmt(record.base_datos)}</td></tr>
+              <tr><td style="padding:10px 0;color:#64748b;font-size:13px;">Descripción</td><td style="padding:10px 0;font-size:13px;color:#0f172a;">${fmt(record.descripcion_error)}</td></tr>
+            </table>
+            <div style="margin-top:24px;">
+              <a href="${appUrl}/bitacora" style="display:inline-block;background:#dc2626;color:#fff;font-size:14px;font-weight:600;padding:10px 24px;border-radius:6px;text-decoration:none;">Ver incidencia →</a>
+            </div>
+          </td>
+        </tr>
+        <tr><td style="padding:16px 0;text-align:center;font-size:12px;color:#94a3b8;">Bitácora ERP · notificación automática</td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`
+}
+
 // ── Handler ───────────────────────────────────────────────────────────────────
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -243,71 +332,87 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(401).json({ error: 'Unauthorized' })
     }
 
-    // Debug: log env vars presence (never log actual values)
-    console.log('notify-bitacora env check:', {
-      hasApiKey: !!process.env.RESEND_API_KEY,
-      hasNotifyEmail: !!process.env.NOTIFY_EMAIL,
-      hasFromEmail: !!process.env.NOTIFY_FROM_EMAIL,
-      hasAppUrl: !!process.env.APP_URL,
-    })
-
     const payload = req.body as SupabaseWebhookPayload
-
     if (!payload || !payload.type) {
       return res.status(400).json({ error: 'Invalid payload' })
     }
-
-    // Skip DELETE events
     if (payload.type === 'DELETE') {
-      return res.status(200).json({ ok: true, skipped: 'DELETE event ignored' })
+      return res.status(200).json({ ok: true, skipped: 'DELETE ignored' })
     }
-
-    const { type, record, old_record } = payload
 
     const apiKey = process.env.RESEND_API_KEY
     if (!apiKey) {
-      console.error('notify-bitacora: RESEND_API_KEY is not configured')
       return res.status(500).json({ error: 'RESEND_API_KEY env var not set' })
     }
 
+    const { type, record, old_record } = payload
     const appUrl = process.env.APP_URL ?? 'https://bitacora-erp.vercel.app'
     const fromEmail = process.env.NOTIFY_FROM_EMAIL ?? 'Bitácora ERP <onboarding@resend.dev>'
-    const toEmails = (process.env.NOTIFY_EMAIL ?? '')
-      .split(',')
-      .map((e: string) => e.trim())
-      .filter(Boolean)
 
-    if (toEmails.length === 0) {
-      console.error('notify-bitacora: NOTIFY_EMAIL is not configured')
-      return res.status(500).json({ error: 'NOTIFY_EMAIL env var not set' })
+    const sent: string[] = []
+    const errors: unknown[] = []
+
+    // ── Case 1: Nueva incidencia (INSERT) ──────────────────────────────────────
+    if (type === 'INSERT') {
+      const toEmails = (process.env.NOTIFY_EMAIL ?? '').split(',').map((e: string) => e.trim()).filter(Boolean)
+      if (toEmails.length > 0) {
+        const result = await sendEmail({
+          apiKey, from: fromEmail, to: toEmails,
+          subject: `[Bitácora] Nueva incidencia — ${record.nombre_empresa}`,
+          html: buildEmailHtml('INSERT', record, null, appUrl),
+        })
+        if (result.error) errors.push(result.error)
+        else sent.push(`nueva-incidencia:${result.id}`)
+      }
     }
 
-    const subject =
-      type === 'INSERT'
-        ? `[Bitácora] Nueva incidencia — ${record.nombre_empresa}`
-        : `[Bitácora] Incidencia actualizada — ${record.nombre_empresa} (#${record.id})`
-
-    const html = buildEmailHtml(type, record, old_record, appUrl)
-
-    // Direct REST call to Resend API — no SDK, no module compatibility issues
-    const resendResponse = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ from: fromEmail, to: toEmails, subject, html }),
-    })
-
-    const resendData = await resendResponse.json() as { id?: string; name?: string; message?: string }
-
-    if (!resendResponse.ok) {
-      console.error('notify-bitacora: Resend API error', JSON.stringify(resendData))
-      return res.status(500).json({ error: resendData })
+    // ── Case 2: FDS → Solucionado ──────────────────────────────────────────────
+    if (
+      type === 'UPDATE' &&
+      record.estado_fds === 'Solucionado' &&
+      old_record?.estado_fds !== 'Solucionado'
+    ) {
+      const toEmails = (process.env.NOTIFY_EMAIL_FDS_SOLUCIONADO ?? '').split(',').map((e: string) => e.trim()).filter(Boolean)
+      if (toEmails.length > 0) {
+        const result = await sendEmail({
+          apiKey, from: fromEmail, to: toEmails,
+          subject: `[Bitácora] ✅ FDS Solucionado — ${record.nombre_empresa} (#${record.id})`,
+          html: buildFdsSolucionadoHtml(record, appUrl),
+        })
+        if (result.error) errors.push(result.error)
+        else sent.push(`fds-solucionado:${result.id}`)
+      } else {
+        console.warn('notify-bitacora: FDS Solucionado triggered but NOTIFY_EMAIL_FDS_SOLUCIONADO is not set')
+      }
     }
 
-    console.log(`notify-bitacora: email sent (${type}) id=${resendData.id}`)
-    return res.status(200).json({ ok: true, emailId: resendData.id })
+    // ── Case 3: Estado → Suspendido ────────────────────────────────────────────
+    if (
+      type === 'UPDATE' &&
+      record.estado === 'Suspendido' &&
+      old_record?.estado !== 'Suspendido'
+    ) {
+      const toEmails = (process.env.NOTIFY_EMAIL_SUSPENDIDO ?? '').split(',').map((e: string) => e.trim()).filter(Boolean)
+      if (toEmails.length > 0) {
+        const result = await sendEmail({
+          apiKey, from: fromEmail, to: toEmails,
+          subject: `[Bitácora] ⚠️ Empresa Suspendida — ${record.nombre_empresa} (#${record.id})`,
+          html: buildSuspendidoHtml(record, appUrl),
+        })
+        if (result.error) errors.push(result.error)
+        else sent.push(`suspendido:${result.id}`)
+      } else {
+        console.warn('notify-bitacora: Suspendido triggered but NOTIFY_EMAIL_SUSPENDIDO is not set')
+      }
+    }
+
+    if (errors.length > 0) {
+      console.error('notify-bitacora: errors', JSON.stringify(errors))
+      return res.status(500).json({ errors })
+    }
+
+    console.log('notify-bitacora: done, sent:', sent)
+    return res.status(200).json({ ok: true, sent })
 
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err)
