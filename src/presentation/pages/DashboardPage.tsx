@@ -2,10 +2,11 @@ import {
   FileText,
   CheckCircle2,
   Clock,
-  AlertTriangle,
   Activity,
   TrendingUp,
   Building2,
+  Tag,
+  Layers,
 } from 'lucide-react'
 import StatsCard from '@/presentation/components/dashboard/StatsCard'
 import { useDashboardMetrics } from '@/presentation/hooks/useDashboard'
@@ -37,7 +38,7 @@ export default function DashboardPage() {
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-3">
         <StatsCard
           title="Total registros"
           value={metrics?.total ?? 0}
@@ -55,25 +56,18 @@ export default function DashboardPage() {
         <StatsCard
           title="Pendientes"
           value={metrics?.pendientes ?? 0}
-          subtitle="Sin resolver"
+          subtitle={`${metrics?.total ? Math.round(((metrics.pendientes ?? 0) / metrics.total) * 100) : 0}% del total`}
           icon={Clock}
           iconColor="text-orange-500"
         />
-        <StatsCard
-          title="Urgentes"
-          value={byPrioridad['URGENTE'] ?? 0}
-          subtitle="Requieren atención inmediata"
-          icon={AlertTriangle}
-          iconColor="text-red-500"
-        />
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
         {/* Por Estado */}
         <div className="rounded-xl border border-border bg-popover p-5">
           <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-foreground">
             <Activity className="h-4 w-4 text-primary" />
-            Por Estado
+            Estado Cliente
           </h3>
           <div className="space-y-3">
             {Object.entries(byEstado).length === 0 ? (
@@ -99,6 +93,7 @@ export default function DashboardPage() {
                         />
                       </div>
                       <span className="text-sm font-semibold tabular-nums text-foreground">{count}</span>
+                      <span className="text-xs text-muted-foreground w-9 text-right">{((count / (metrics?.total ?? 1)) * 100).toFixed(0)}%</span>
                     </div>
                   </div>
                 ))
@@ -110,7 +105,7 @@ export default function DashboardPage() {
         <div className="rounded-xl border border-border bg-popover p-5">
           <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-foreground">
             <TrendingUp className="h-4 w-4 text-primary" />
-            Por Prioridad
+            Prioridad Servicio
           </h3>
           <div className="space-y-3">
             {Object.entries(byPrioridad).length === 0 ? (
@@ -137,6 +132,7 @@ export default function DashboardPage() {
                         />
                       </div>
                       <span className="text-sm font-semibold tabular-nums text-foreground">{count}</span>
+                      <span className="text-xs text-muted-foreground w-9 text-right">{((count / (metrics?.total ?? 1)) * 100).toFixed(0)}%</span>
                     </div>
                   </div>
                 ))
@@ -145,7 +141,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Estado FDS */}
-        <div className="rounded-xl border border-border bg-popover p-5">
+        <div className="rounded-xl border border-border bg-popover p-5 lg:col-span-1">
           <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-foreground">
             <Building2 className="h-4 w-4 text-primary" />
             Estado FDS
@@ -174,6 +170,73 @@ export default function DashboardPage() {
                         />
                       </div>
                       <span className="text-sm font-semibold tabular-nums text-foreground">{count}</span>
+                      <span className="text-xs text-muted-foreground w-9 text-right">{((count / (metrics?.total ?? 1)) * 100).toFixed(0)}%</span>
+                    </div>
+                  </div>
+                ))
+            )}
+          </div>
+        </div>
+
+        {/* Versión */}
+        <div className="rounded-xl border border-border bg-popover p-5">
+          <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-foreground">
+            <Layers className="h-4 w-4 text-primary" />
+            Versión
+          </h3>
+          <div className="space-y-3">
+            {Object.entries(metrics?.byVersion ?? {}).length === 0 ? (
+              <p className="text-sm text-muted-foreground">Sin datos</p>
+            ) : (
+              Object.entries(metrics?.byVersion ?? {})
+                .sort(([, a], [, b]) => b - a)
+                .map(([version, count]) => (
+                  <div key={version} className="flex items-center justify-between gap-3">
+                    <span className="inline-flex shrink-0 items-center rounded-full bg-secondary px-2 py-0.5 text-xs font-medium text-foreground">
+                      {version}
+                    </span>
+                    <div className="flex flex-1 items-center gap-2">
+                      <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-secondary">
+                        <div
+                          className="h-full rounded-full bg-primary"
+                          style={{ width: `${((count / (metrics?.total ?? 1)) * 100).toFixed(0)}%` }}
+                        />
+                      </div>
+                      <span className="text-sm font-semibold tabular-nums text-foreground">{count}</span>
+                      <span className="text-xs text-muted-foreground w-9 text-right">{((count / (metrics?.total ?? 1)) * 100).toFixed(0)}%</span>
+                    </div>
+                  </div>
+                ))
+            )}
+          </div>
+        </div>
+
+        {/* Segmentación FDS */}
+        <div className="rounded-xl border border-border bg-popover p-5 lg:col-span-2 xl:col-span-1">
+          <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-foreground">
+            <Tag className="h-4 w-4 text-primary" />
+            Segmentación FDS
+          </h3>
+          <div className="space-y-3">
+            {Object.entries(metrics?.bySegmentacion ?? {}).length === 0 ? (
+              <p className="text-sm text-muted-foreground">Sin datos</p>
+            ) : (
+              Object.entries(metrics?.bySegmentacion ?? {})
+                .sort(([, a], [, b]) => b - a)
+                .map(([segmentacion, count]) => (
+                  <div key={segmentacion} className="flex items-center justify-between gap-3">
+                    <span className="inline-flex shrink-0 items-center rounded-full bg-secondary px-2 py-0.5 text-xs font-medium text-foreground">
+                      {segmentacion}
+                    </span>
+                    <div className="flex flex-1 items-center gap-2">
+                      <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-secondary">
+                        <div
+                          className="h-full rounded-full bg-primary"
+                          style={{ width: `${((count / (metrics?.total ?? 1)) * 100).toFixed(0)}%` }}
+                        />
+                      </div>
+                      <span className="text-sm font-semibold tabular-nums text-foreground">{count}</span>
+                      <span className="text-xs text-muted-foreground w-9 text-right">{((count / (metrics?.total ?? 1)) * 100).toFixed(0)}%</span>
                     </div>
                   </div>
                 ))

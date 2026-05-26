@@ -117,7 +117,7 @@ export class SupabaseBitacoraRepository implements IBitacoraRepository {
 
   async getDashboardMetrics() {
     const { data, error } = await supabase.from(this.table).select(
-      'estado, prioridad_servicio, estado_fds, solucionado',
+      'estado, prioridad_servicio, estado_fds, solucionado, segmentacion_fds, version_anterior',
     )
 
     if (error) throw new Error(error.message)
@@ -126,6 +126,8 @@ export class SupabaseBitacoraRepository implements IBitacoraRepository {
     const byEstado: Record<string, number> = {}
     const byPrioridad: Record<string, number> = {}
     const byEstadoFDS: Record<string, number> = {}
+    const bySegmentacion: Record<string, number> = {}
+    const byVersion: Record<string, number> = {}
     let solucionados = 0
     let pendientes = 0
 
@@ -134,10 +136,14 @@ export class SupabaseBitacoraRepository implements IBitacoraRepository {
       if (row.prioridad_servicio)
         byPrioridad[row.prioridad_servicio] = (byPrioridad[row.prioridad_servicio] ?? 0) + 1
       if (row.estado_fds) byEstadoFDS[row.estado_fds] = (byEstadoFDS[row.estado_fds] ?? 0) + 1
+      if (row.segmentacion_fds) bySegmentacion[row.segmentacion_fds] = (bySegmentacion[row.segmentacion_fds] ?? 0) + 1
+      if (row.version_anterior) byVersion[row.version_anterior] = (byVersion[row.version_anterior] ?? 0) + 1
       if (row.solucionado) solucionados++
       else pendientes++
     }
 
-    return { total, byEstado, byPrioridad, byEstadoFDS, solucionados, pendientes }
+    const conSegmentacion = Object.values(bySegmentacion).reduce((a, b) => a + b, 0)
+
+    return { total, byEstado, byPrioridad, byEstadoFDS, bySegmentacion, byVersion, solucionados, pendientes, conSegmentacion }
   }
 }

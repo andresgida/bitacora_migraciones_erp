@@ -49,7 +49,10 @@ export interface IBitacoraRepository {
     byEstado: Record<string, number>
     byPrioridad: Record<string, number>
     byEstadoFDS: Record<string, number>
+    bySegmentacion: Record<string, number>
+    byVersion: Record<string, number>
     solucionados: number
     pendientes: number
+    conSegmentacion: number
   }>
 }
