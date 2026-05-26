@@ -356,7 +356,7 @@ export default function BitacoraForm({
 
           <div className="space-y-1.5">
             <Label htmlFor="link_video">Link de video</Label>
-            <Input type="url" placeholder="https://..." {...register('link_video')} />
+            <Input type="text" placeholder="https://... o enlace de SharePoint" {...register('link_video')} />
             {errors.link_video && (
               <p className="text-xs text-destructive">{errors.link_video.message}</p>
             )}

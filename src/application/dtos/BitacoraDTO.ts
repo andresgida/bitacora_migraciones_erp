@@ -29,7 +29,7 @@ export const BitacoraFormSchema = z.object({
   descripcion_error: z.string().nullable().optional(),
   imagen_1_url: z.string().nullable().optional(),
   imagen_2_url: z.string().nullable().optional(),
-  link_video: z.string().url('URL inválida').nullable().optional().or(z.literal('')),
+  link_video: z.string().max(2048, 'URL demasiado larga').refine(v => !v || v.startsWith('http://') || v.startsWith('https://'), { message: 'Debe ser una URL válida (https://...)' }).nullable().optional().or(z.literal('')),
   prioridad_servicio: z.enum(PrioridadValues).nullable().optional(),
   solucionado: z.boolean().default(false),
   observacion_formacion: z.string().nullable().optional(),
