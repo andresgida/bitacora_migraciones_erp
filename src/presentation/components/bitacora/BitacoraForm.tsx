@@ -405,7 +405,7 @@ export default function BitacoraForm({
       fields: (
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1.5">
-            <Label htmlFor="fecha_tentativa_solucion">Fecha tentativa solución</Label>
+            <Label htmlFor="fecha_tentativa_solucion">Fecha Robot Oficial</Label>
             <Input type="date" {...register('fecha_tentativa_solucion')} />
           </div>
           <SelectField
