@@ -225,7 +225,7 @@ export default function BitacoraForm({
           <SelectField
             control={control}
             name="version_anterior"
-            label="Versión anterior"
+            label="Versión"
             options={toCatalogArray(catVersion)}
           />
           <SelectField control={control} name="csm" label="CSM" options={toCatalogArray(catCsm)} />
