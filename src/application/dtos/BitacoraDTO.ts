@@ -40,7 +40,7 @@ export const BitacoraFormSchema = z.object({
   azure_url: z.string().url('URL inválida').nullable().optional().or(z.literal('')),
   segmentacion_fds: z.enum(SegmentacionFDSValues).nullable().optional(),
   impacto_fds: z.enum(ImpactoFDSValues).nullable().optional(),
-  fecha_robot_beta: z.string().nullable().optional(),
+  fecha_robot_beta: z.preprocess(v => v === '' ? null : v, z.string().nullable().optional()),
 })
 
 export type BitacoraFormData = z.infer<typeof BitacoraFormSchema>
