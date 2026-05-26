@@ -355,7 +355,7 @@ export default function BitacoraForm({
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="link_video">Link de video</Label>
+            <Label htmlFor="link_video">Link de video o detalle</Label>
             <Input type="text" placeholder="https://... o enlace de SharePoint" {...register('link_video')} />
             {errors.link_video && (
               <p className="text-xs text-destructive">{errors.link_video.message}</p>
@@ -366,7 +366,7 @@ export default function BitacoraForm({
             <SelectField
               control={control}
               name="prioridad_servicio"
-              label="Prioridad servicio"
+              label="Prioridad Servicio"
               options={toCatalogArray(catPrioridad)}
             />
             <div className="space-y-1.5">
@@ -444,6 +444,14 @@ export default function BitacoraForm({
             <Input type="url" placeholder="https://..." {...register('azure_url')} />
             {errors.azure_url && (
               <p className="text-xs text-destructive">{errors.azure_url.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="fecha_robot_beta">Fecha robot beta</Label>
+            <Input type="date" {...register('fecha_robot_beta')} />
+            {errors.fecha_robot_beta && (
+              <p className="text-xs text-destructive">{errors.fecha_robot_beta.message}</p>
             )}
           </div>
         </div>

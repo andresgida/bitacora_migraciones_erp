@@ -38,6 +38,7 @@ export interface Bitacora {
   observaciones_fds: string | null
   encargado_fds: EncargadoFDSType | null
   azure_url: string | null
+  fecha_robot_beta: string | null
   segmentacion_fds: SegmentacionFDSType | null
   impacto_fds: ImpactoFDSType | null
   created_at: string
