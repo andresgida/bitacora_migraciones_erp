@@ -82,7 +82,7 @@ export default function LoginPage() {
             </div>
 
             <h2 className="text-2xl font-bold leading-snug text-white">
-              Potencia su<br />Migración ERP
+              Bitácora de<br />Migración ERP Version 2026
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-blue-200">
               Visualice el progreso en tiempo real y garantice la integridad de sus datos con
