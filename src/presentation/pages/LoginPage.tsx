@@ -82,17 +82,16 @@ export default function LoginPage() {
             </div>
 
             <h2 className="text-2xl font-bold leading-snug text-white">
-              Bitácora de<br />Migración ERP Version 2026
+            Migración ERP Version 2026
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-blue-200">
-              Visualice el progreso en tiempo real y garantice la integridad de sus datos con
-              nuestra plataforma líder en migración empresarial.
+              Ingrese a la aplicación de migración ERP Version 2026
             </p>
           </div>
 
           <div className="flex items-center gap-2">
             <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400/50" />
-            <span className="font-mono text-xs text-blue-300">Power by Ofima S.A.S</span>
+            <span className="font-mono text-xs text-blue-300">Powered by Ofima S.A.S</span>
           </div>
         </div>
 
