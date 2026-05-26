@@ -15,8 +15,8 @@ import {
 } from '@/domain/value-objects/enums'
 
 export const BitacoraFormSchema = z.object({
-  fecha_novedad: z.string().nullable().optional(),
-  fecha_definiciones: z.string().nullable().optional(),
+  fecha_novedad: z.preprocess(v => v === '' ? null : v, z.string().nullable().optional()),
+  fecha_definiciones: z.preprocess(v => v === '' ? null : v, z.string().nullable().optional()),
   nombre_empresa: z.string().min(1, 'La empresa es requerida'),
   estado: z.enum(EstadoValues).nullable().optional(),
   base_datos: z.string().nullable().optional(),
@@ -33,7 +33,7 @@ export const BitacoraFormSchema = z.object({
   prioridad_servicio: z.enum(PrioridadValues).nullable().optional(),
   solucionado: z.boolean().default(false),
   observacion_formacion: z.string().nullable().optional(),
-  fecha_tentativa_solucion: z.string().nullable().optional(),
+  fecha_tentativa_solucion: z.preprocess(v => v === '' ? null : v, z.string().nullable().optional()),
   estado_fds: z.enum(EstadoFDSValues).nullable().optional(),
   observaciones_fds: z.string().nullable().optional(),
   encargado_fds: z.enum(EncargadoFDSValues).nullable().optional(),
