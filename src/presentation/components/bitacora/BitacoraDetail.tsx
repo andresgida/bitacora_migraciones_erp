@@ -133,7 +133,7 @@ export default function BitacoraDetail({
                 <Separator className="my-1" />
                 <DetailRow label="Base de datos" value={record.base_datos} />
                 <Separator className="my-1" />
-                <DetailRow label="Versión anterior" value={record.version_anterior} />
+                <DetailRow label="Versión" value={record.version_anterior} />
                 <Separator className="my-1" />
                 <DetailRow
                   label="Clasificación"
@@ -233,7 +233,7 @@ export default function BitacoraDetail({
                 <DetailRow label="Encargado FDS" value={record.encargado_fds} />
                 <Separator className="my-1" />
                 <DetailRow
-                  label="Fecha tentativa"
+                  label="Fecha Robot Oficial"
                   value={formatDate(record.fecha_tentativa_solucion)}
                 />
                 <Separator className="my-1" />

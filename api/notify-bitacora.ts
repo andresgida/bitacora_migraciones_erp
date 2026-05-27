@@ -255,6 +255,33 @@ async function sendEmail(opts: {
   return { id: data.messageId }
 }
 
+// ── Auto-mark solucionado via Supabase REST ─────────────────────────────────
+
+async function autoMarkSolucionado(recordId: number): Promise<void> {
+  const supabaseUrl = process.env.SUPABASE_URL
+  const serviceKey = process.env.SUPABASE_SERVICE_KEY
+  if (!supabaseUrl || !serviceKey) {
+    console.warn('notify-bitacora: SUPABASE_URL or SUPABASE_SERVICE_KEY not set, skipping auto-mark')
+    return
+  }
+  const res = await fetch(`${supabaseUrl}/rest/v1/bitacora?id=eq.${recordId}`, {
+    method: 'PATCH',
+    headers: {
+      'apikey': serviceKey,
+      'Authorization': `Bearer ${serviceKey}`,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=minimal',
+    },
+    body: JSON.stringify({ solucionado: true }),
+  })
+  if (!res.ok) {
+    const text = await res.text()
+    console.error('notify-bitacora: failed to auto-mark solucionado', text)
+  } else {
+    console.log(`notify-bitacora: auto-marked solucionado=true for record #${recordId}`)
+  }
+}
+
 // ── Targeted email templates ──────────────────────────────────────────────────
 
 function buildFdsSolucionadoHtml(record: BitacoraRecord, appUrl: string): string {
@@ -373,23 +400,28 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     }
 
-    // ── Case 2: FDS → Solucionado ──────────────────────────────────────────────
+    // ── Case 2: Estado FDS cambia a cualquier valor ───────────────────────────
     if (
       type === 'UPDATE' &&
-      record.estado_fds === 'Solucionado' &&
-      old_record?.estado_fds !== 'Solucionado'
+      record.estado_fds &&
+      record.estado_fds !== old_record?.estado_fds
     ) {
       const toEmails = (process.env.NOTIFY_EMAIL_FDS_SOLUCIONADO ?? '').split(',').map((e: string) => e.trim()).filter(Boolean)
       if (toEmails.length > 0) {
+        const isSolucionado = record.estado_fds === 'Solucionado'
         const result = await sendEmail({
           apiKey, fromName, fromEmail, to: toEmails,
-          subject: `[Bitácora] ✅ FDS Solucionado — ${record.nombre_empresa} (#${record.id})`,
-          html: buildFdsSolucionadoHtml(record, appUrl),
+          subject: isSolucionado
+            ? `[Bitácora] ✅ FDS Solucionado — ${record.nombre_empresa} (#${record.id})`
+            : `[Bitácora] Estado FDS → ${record.estado_fds} — ${record.nombre_empresa} (#${record.id})`,
+          html: isSolucionado
+            ? buildFdsSolucionadoHtml(record, appUrl)
+            : buildEmailHtml('UPDATE', record, old_record, appUrl),
         })
         if (result.error) errors.push(result.error)
-        else sent.push(`fds-solucionado:${result.id}`)
+        else sent.push(`estado-fds:${result.id}`)
       } else {
-        console.warn('notify-bitacora: FDS Solucionado triggered but NOTIFY_EMAIL_FDS_SOLUCIONADO is not set')
+        console.warn('notify-bitacora: Estado FDS changed but NOTIFY_EMAIL_FDS_SOLUCIONADO is not set')
       }
     }
 
@@ -411,6 +443,38 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       } else {
         console.warn('notify-bitacora: Suspendido triggered but NOTIFY_EMAIL_SUSPENDIDO is not set')
       }
+    }
+
+    // ── Case 4: Prioridad servicio cambia (excluye DEVOLUCION DE FDS y REVISION FORMACION) ──
+    const PRIORIDAD_EXCLUIDAS = ['DEVOLUCION DE FDS', 'REVISION FORMACION']
+    if (
+      type === 'UPDATE' &&
+      record.prioridad_servicio &&
+      record.prioridad_servicio !== old_record?.prioridad_servicio &&
+      !PRIORIDAD_EXCLUIDAS.includes(record.prioridad_servicio)
+    ) {
+      const toEmails = (process.env.NOTIFY_EMAIL ?? '').split(',').map((e: string) => e.trim()).filter(Boolean)
+      if (toEmails.length > 0) {
+        const result = await sendEmail({
+          apiKey, fromName, fromEmail, to: toEmails,
+          subject: `[Bitácora] Prioridad → ${record.prioridad_servicio} — ${record.nombre_empresa} (#${record.id})`,
+          html: buildEmailHtml('UPDATE', record, old_record, appUrl),
+        })
+        if (result.error) errors.push(result.error)
+        else sent.push(`prioridad:${result.id}`)
+      } else {
+        console.warn('notify-bitacora: Prioridad changed but NOTIFY_EMAIL is not set')
+      }
+    }
+
+    // ── Case 5: Auto-marcar solucionado=true cuando prioridad cambia a SOLUCIONADO ──
+    if (
+      type === 'UPDATE' &&
+      record.prioridad_servicio === 'SOLUCIONADO' &&
+      old_record?.prioridad_servicio !== 'SOLUCIONADO' &&
+      !record.solucionado
+    ) {
+      await autoMarkSolucionado(record.id)
     }
 
     if (errors.length > 0) {
