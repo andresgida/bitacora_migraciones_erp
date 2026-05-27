@@ -1,14 +1,18 @@
 import { NavLink } from 'react-router-dom'
 import { Zap, LayoutDashboard, BookOpen, Settings2, Settings, HelpCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useAuthStore } from '@/presentation/stores/authStore'
 
-const navItems = [
-  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { to: '/bitacora', label: 'Bitácora', icon: BookOpen },
-  { to: '/catalogos', label: 'Catálogos', icon: Settings2 },
+const baseNavItems = [
+  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, adminOnly: false },
+  { to: '/bitacora', label: 'Bitácora', icon: BookOpen, adminOnly: false },
+  { to: '/catalogos', label: 'Catálogos', icon: Settings2, adminOnly: true },
 ]
 
 export default function Sidebar() {
+  const { isAdmin } = useAuthStore()
+  const navItems = baseNavItems.filter(item => !item.adminOnly || isAdmin())
+
   return (
     <aside className="fixed left-0 top-0 z-50 flex h-full w-64 flex-col border-r border-border bg-card">
       {/* Logo */}

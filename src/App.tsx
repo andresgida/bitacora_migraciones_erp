@@ -5,6 +5,7 @@ import { useEffect, Suspense, lazy } from 'react'
 import { supabase } from '@/infrastructure/supabase/client'
 import AppLayout from '@/presentation/components/layout/AppLayout'
 import ProtectedRoute from '@/presentation/components/common/ProtectedRoute'
+import AdminRoute from '@/presentation/components/common/AdminRoute'
 import LoadingSpinner from '@/presentation/components/common/LoadingSpinner'
 
 const LoginPage = lazy(() => import('@/presentation/pages/LoginPage'))
@@ -89,7 +90,14 @@ function App() {
           <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="bitacora" element={<BitacoraPage />} />
-          <Route path="catalogos" element={<CatalogPage />} />
+          <Route
+            path="catalogos"
+            element={
+              <AdminRoute>
+                <CatalogPage />
+              </AdminRoute>
+            }
+          />
         </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Routes>

@@ -20,6 +20,46 @@ interface BitacoraDetailProps {
   onClose: () => void
 }
 
+const FIELD_LABELS: Record<string, string> = {
+  nombre_empresa: 'Empresa',
+  estado: 'Estado',
+  base_datos: 'Base de datos',
+  csm: 'CSM',
+  lider_novedad: 'Líder novedad',
+  suite: 'Suite',
+  modulo: 'Módulo',
+  clasificacion: 'Clasificación',
+  version_anterior: 'Versión',
+  descripcion_error: 'Descripción error',
+  link_video: 'Link video',
+  prioridad_servicio: 'Prioridad',
+  solucionado: 'Solucionado',
+  observacion_formacion: 'Obs. formación',
+  fecha_novedad: 'Fecha novedad',
+  fecha_definiciones: 'Fecha definiciones',
+  fecha_tentativa_solucion: 'Fecha Robot Oficial',
+  fecha_robot_beta: 'Fecha robot beta',
+  estado_fds: 'Estado FDS',
+  observaciones_fds: 'Obs. FDS',
+  encargado_fds: 'Encargado FDS',
+  segmentacion_fds: 'Segmentación FDS',
+  impacto_fds: 'Impacto FDS',
+  azure_url: 'Azure URL',
+}
+
+const IGNORED_FIELDS = new Set(['updated_at', 'created_at', 'id', 'imagen_1_url', 'imagen_2_url'])
+
+function getChangedFields(oldData: Record<string, unknown> | null, newData: Record<string, unknown> | null) {
+  if (!oldData || !newData) return []
+  return Object.keys(newData)
+    .filter(k => !IGNORED_FIELDS.has(k) && String(newData[k] ?? '') !== String(oldData[k] ?? ''))
+    .map(k => ({
+      field: FIELD_LABELS[k] ?? k,
+      from: String(oldData[k] ?? '—'),
+      to: String(newData[k] ?? '—'),
+    }))
+}
+
 function DetailRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="grid grid-cols-[140px_1fr] gap-2 py-1.5">
@@ -277,6 +317,21 @@ export default function BitacoraDetail({
                           <Clock className="h-3 w-3" />
                           {formatDateTime(log.created_at)}
                         </div>
+                        {log.action === 'UPDATE' && (() => {
+                          const changes = getChangedFields(log.old_data, log.new_data)
+                          return changes.length > 0 ? (
+                            <div className="mt-1.5 space-y-1">
+                              {changes.map(({ field, from, to }) => (
+                                <div key={field} className="text-xs rounded bg-muted/60 px-2 py-1">
+                                  <span className="font-medium text-foreground">{field}:</span>{' '}
+                                  <span className="text-muted-foreground line-through">{from}</span>
+                                  {' → '}
+                                  <span className="text-foreground font-medium">{to}</span>
+                                </div>
+                              ))}
+                            </div>
+                          ) : null
+                        })()}
                       </div>
                     </div>
                   ))}

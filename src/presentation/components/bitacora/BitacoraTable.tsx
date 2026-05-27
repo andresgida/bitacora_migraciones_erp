@@ -225,6 +225,16 @@ export default function BitacoraTable({
         ),
       },
       {
+        accessorKey: 'created_at',
+        header: 'Fecha registro',
+        size: 130,
+        cell: ({ row }) => (
+          <span className="text-xs text-muted-foreground">
+            {new Date(row.original.created_at).toLocaleString('es-CO', { dateStyle: 'short', timeStyle: 'short' })}
+          </span>
+        ),
+      },
+      {
         id: 'actions',
         header: 'Acciones',
         size: 110,
