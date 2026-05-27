@@ -74,9 +74,14 @@ export function useUpdateBitacora() {
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: BitacoraFormData }) =>
       updateUC.execute(id, data as BitacoraUpdate, user?.id, profile?.email ?? user?.email),
-    onSuccess: () => {
+    onSuccess: (updatedRecord) => {
       queryClient.invalidateQueries({ queryKey: [BITACORA_QUERY_KEY] })
       toast.success('Registro actualizado exitosamente')
+      if (updatedRecord.prioridad_servicio === 'SOLUCIONADO' && !updatedRecord.solucionado) {
+        setTimeout(() => {
+          queryClient.invalidateQueries({ queryKey: [BITACORA_QUERY_KEY] })
+        }, 3000)
+      }
     },
     onError: (err: Error) => {
       toast.error(`Error al actualizar: ${err.message}`)
