@@ -383,6 +383,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const fromName = 'Bitácora ERP'
     const fromEmail = process.env.NOTIFY_FROM_EMAIL ?? 'agomez@ofima.com'
 
+    console.log('notify-bitacora: event', JSON.stringify({
+      type,
+      id: record?.id,
+      prioridad_nuevo: record?.prioridad_servicio,
+      prioridad_anterior: old_record?.prioridad_servicio,
+      estado_fds_nuevo: record?.estado_fds,
+      estado_fds_anterior: old_record?.estado_fds,
+      estado_nuevo: record?.estado,
+      estado_anterior: old_record?.estado,
+      has_old_record: !!old_record,
+    }))
+
     const sent: string[] = []
     const errors: unknown[] = []
 
@@ -447,6 +459,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // ── Case 4: Prioridad servicio cambia (excluye DEVOLUCION DE FDS y REVISION FORMACION) ──
     const PRIORIDAD_EXCLUIDAS = ['DEVOLUCION DE FDS', 'REVISION FORMACION']
+    console.log('notify-bitacora: case4 eval', {
+      isUpdate: type === 'UPDATE',
+      tienePrioridad: !!record.prioridad_servicio,
+      cambio: record.prioridad_servicio !== old_record?.prioridad_servicio,
+      noExcluida: !PRIORIDAD_EXCLUIDAS.includes(record.prioridad_servicio ?? ''),
+      notifyEmail: !!(process.env.NOTIFY_EMAIL),
+    })
     if (
       type === 'UPDATE' &&
       record.prioridad_servicio &&
