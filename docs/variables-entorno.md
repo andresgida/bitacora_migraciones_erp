@@ -14,23 +14,6 @@ Configuradas en Vercel (Production and Preview).
 Correos: jmunera@ofima.com, pperez@ofima.com
 | `NOTIFY_EMAIL_SUSPENDIDO` | Destinatarios para: **cuando una empresa queda en estado "Suspendido"** | Correos de quien deba saber de suspensiones (gerencia, CSM, etc.)Correos: darias@ofima.com, lperez@ofima.com, pperez@ofima.com |
 
-Administradores: aalvarez@ofima.com, sagudelo@ofima.com, jmunera@ofima.com, pperez@ofima.com, amarin@ofima.com, darias@ofima.com, lperez@ofima.com
-
-aalvarez@ofima.com (mailto:aalvarez@ofima.com) → AaLv_2026#
-
-sagudelo@ofima.com (mailto:sagudelo@ofima.com) → SaGu_482!
-
-jmunera@ofima.com (mailto:jmunera@ofima.com) → JmNera#74
-
-pperez@ofima.com (mailto:pperez@ofima.com) → PeRez_831*
-
-amarin@ofima.com (mailto:amarin@ofima.com) → AmRn_562#
-
-darias@ofima.com (mailto:darias@ofima.com) → DaRi_947!
-
-lperez@ofima.com (mailto:lperez@ofima.com) → LpEz_615$
-
-
 **Ejemplo de múltiples destinatarios:**
 ```
 correo1@empresa.com,correo2@empresa.com
