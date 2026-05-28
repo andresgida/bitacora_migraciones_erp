@@ -9,9 +9,27 @@ Configuradas en Vercel (Production and Preview).
 | Variable | Para qué sirve | Qué valor poner |
 |---|---|---|
 | `NOTIFY_FROM_EMAIL` | Remitente que aparece en todos los correos ("De:") | El correo verificado en Brevo (ej: `agomez@ofima.com`) |
-| `NOTIFY_EMAIL` | Destinatarios para: **nueva incidencia (INSERT)** y **cambio de prioridad de servicio** | Correos separados por coma de quienes deben recibir esas alertas |
+| `NOTIFY_EMAIL` | Destinatarios para: **nueva incidencia (INSERT)** y **cambio de prioridad de servicio** | Correos separados por coma de quienes deben recibir esas alertas | Correos: jmunera@ofima.com, pperez@ofima.com
 | `NOTIFY_EMAIL_FDS_SOLUCIONADO` | Destinatarios para: **cualquier cambio de Estado FDS** (Pendiente, En proceso, Solucionado) | Correos del equipo FDS |
-| `NOTIFY_EMAIL_SUSPENDIDO` | Destinatarios para: **cuando una empresa queda en estado "Suspendido"** | Correos de quien deba saber de suspensiones (gerencia, CSM, etc.) |
+Correos: jmunera@ofima.com, pperez@ofima.com
+| `NOTIFY_EMAIL_SUSPENDIDO` | Destinatarios para: **cuando una empresa queda en estado "Suspendido"** | Correos de quien deba saber de suspensiones (gerencia, CSM, etc.)Correos: darias@ofima.com, lperez@ofima.com, pperez@ofima.com |
+
+Administradores: aalvarez@ofima.com, sagudelo@ofima.com, jmunera@ofima.com, pperez@ofima.com, amarin@ofima.com, darias@ofima.com, lperez@ofima.com
+
+aalvarez@ofima.com (mailto:aalvarez@ofima.com) → AaLv_2026#
+
+sagudelo@ofima.com (mailto:sagudelo@ofima.com) → SaGu_482!
+
+jmunera@ofima.com (mailto:jmunera@ofima.com) → JmNera#74
+
+pperez@ofima.com (mailto:pperez@ofima.com) → PeRez_831*
+
+amarin@ofima.com (mailto:amarin@ofima.com) → AmRn_562#
+
+darias@ofima.com (mailto:darias@ofima.com) → DaRi_947!
+
+lperez@ofima.com (mailto:lperez@ofima.com) → LpEz_615$
+
 
 **Ejemplo de múltiples destinatarios:**
 ```
