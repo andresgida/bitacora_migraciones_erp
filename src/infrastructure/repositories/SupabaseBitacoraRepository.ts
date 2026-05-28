@@ -9,7 +9,7 @@ export class SupabaseBitacoraRepository implements IBitacoraRepository {
     filters?: BitacoraFilters,
     pagination?: PaginationParams,
     orderBy: keyof Bitacora = 'id',
-    orderDir: 'asc' | 'desc' = 'asc',
+    orderDir: 'asc' | 'desc' = 'desc',
   ): Promise<PaginatedResult<Bitacora>> {
     const page = pagination?.page ?? 1
     const pageSize = pagination?.pageSize ?? 20

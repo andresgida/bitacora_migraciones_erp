@@ -192,8 +192,9 @@ export default function ImportModal({ open, onClose }: ImportModalProps) {
     setErrors([])
     const errs: { row: number; msg: string }[] = []
     let ok = 0
-    for (let i = 0; i < rows.length; i++) {
-      const { _raw, _rowNum, ...data } = rows[i]
+    const reversedRows = [...rows].reverse()
+    for (let i = 0; i < reversedRows.length; i++) {
+      const { _raw, _rowNum, ...data } = reversedRows[i]
       void _raw
       if (!data.nombre_empresa) { errs.push({ row: _rowNum, msg: 'Falta nombre de empresa' }); continue }
       try {
