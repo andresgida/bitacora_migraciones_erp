@@ -17,7 +17,8 @@ import type { Bitacora } from '@/domain/entities/Bitacora'
 import type { BitacoraFormData } from '@/application/dtos/BitacoraDTO'
 
 export default function BitacoraPage() {
-  const { isAdmin } = useAuthStore()
+  const { isAdmin, user, profile } = useAuthStore()
+  const canImport = (profile?.email ?? user?.email) === 'agomez@ofima.com'
 
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(20)
@@ -110,7 +111,7 @@ export default function BitacoraPage() {
             Registro de incidencias y novedades de migración ERP
           </p>
         </div>
-        {isAdmin() && (
+        {canImport && (
           <button
             onClick={() => setImportOpen(true)}
             className="flex items-center gap-2 rounded-lg border border-border bg-secondary px-3 py-2 text-sm font-medium text-foreground hover:bg-secondary/80 transition-colors"
