@@ -11,6 +11,7 @@ Configuradas en Vercel (Production and Preview).
 | `NOTIFY_FROM_EMAIL` | Remitente que aparece en todos los correos ("De:") | El correo verificado en Brevo (ej: `agomez@ofima.com`) |
 | `NOTIFY_EMAIL` | Destinatarios para: **nueva incidencia (INSERT)** y **cambio de prioridad de servicio** | Correos separados por coma de quienes deben recibir esas alertas |
 | `NOTIFY_EMAIL_FDS_SOLUCIONADO` | Destinatarios para: **cualquier cambio de Estado FDS** (Pendiente, En proceso, Solucionado) | Correos del equipo FDS |
+| `NOTIFY_EMAIL_PRIORIDAD` | Destinatarios para: **cambio de prioridad de servicio** (excluye `DEVOLUCION DE FDS` y `REVISION FORMACION`) | Correos de quien deba recibir alertas de prioridad |
 | `NOTIFY_EMAIL_SUSPENDIDO` | Destinatarios para: **cuando una empresa queda en estado "Suspendido"** | Correos de quien deba saber de suspensiones (gerencia, CSM, etc.) |
 
 **Ejemplo de múltiples destinatarios:**
@@ -38,7 +39,7 @@ correo1@empresa.com,correo2@empresa.com
 | Evento | Variable de destinatarios | Condición |
 |---|---|---|
 | Nueva incidencia creada | `NOTIFY_EMAIL` | Siempre al insertar |
-| Prioridad de servicio cambia | `NOTIFY_EMAIL` | Solo cuando el nuevo valor es distinto a `DEVOLUCION DE FDS` y `REVISION FORMACION` |
+| Prioridad de servicio cambia | `NOTIFY_EMAIL_PRIORIDAD` | Solo cuando el nuevo valor es distinto a `DEVOLUCION DE FDS` y `REVISION FORMACION` |
 | Estado FDS cambia | `NOTIFY_EMAIL_FDS_SOLUCIONADO` | Cualquier cambio de valor |
 | Estado cambia a Suspendido | `NOTIFY_EMAIL_SUSPENDIDO` | Solo al cambiar a `Suspendido` |
 

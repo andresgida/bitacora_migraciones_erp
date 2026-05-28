@@ -453,7 +453,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       record.prioridad_servicio !== old_record?.prioridad_servicio &&
       !PRIORIDAD_EXCLUIDAS.includes(record.prioridad_servicio)
     ) {
-      const toEmails = (process.env.NOTIFY_EMAIL ?? '').split(',').map((e: string) => e.trim()).filter(Boolean)
+      const toEmails = (process.env.NOTIFY_EMAIL_PRIORIDAD ?? '').split(',').map((e: string) => e.trim()).filter(Boolean)
       if (toEmails.length > 0) {
         const result = await sendEmail({
           apiKey, fromName, fromEmail, to: toEmails,
@@ -463,7 +463,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         if (result.error) errors.push(result.error)
         else sent.push(`prioridad:${result.id}`)
       } else {
-        console.warn('notify-bitacora: Prioridad changed but NOTIFY_EMAIL is not set')
+        console.warn('notify-bitacora: Prioridad changed but NOTIFY_EMAIL_PRIORIDAD is not set')
       }
     }
 
