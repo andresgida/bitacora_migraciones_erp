@@ -49,14 +49,16 @@ export default function DashboardPage() {
         <StatsCard
           title="Solucionados"
           value={metrics?.solucionados ?? 0}
-          subtitle={`${metrics?.total ? Math.round(((metrics.solucionados ?? 0) / metrics.total) * 100) : 0}% del total`}
+          percent={metrics?.total ? Math.round(((metrics.solucionados ?? 0) / metrics.total) * 100) : 0}
+          percentColor="bg-green-500"
           icon={CheckCircle2}
           iconColor="text-green-600"
         />
         <StatsCard
           title="Pendientes"
           value={metrics?.pendientes ?? 0}
-          subtitle={`${metrics?.total ? Math.round(((metrics.pendientes ?? 0) / metrics.total) * 100) : 0}% del total`}
+          percent={metrics?.total ? Math.round(((metrics.pendientes ?? 0) / metrics.total) * 100) : 0}
+          percentColor="bg-orange-500"
           icon={Clock}
           iconColor="text-orange-500"
         />
@@ -93,7 +95,7 @@ export default function DashboardPage() {
                         />
                       </div>
                       <span className="text-sm font-semibold tabular-nums text-foreground">{count}</span>
-                      <span className="text-xs text-muted-foreground w-9 text-right">{((count / (metrics?.total ?? 1)) * 100).toFixed(0)}%</span>
+                      <span className="text-xs font-bold tabular-nums w-10 text-center px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">{((count / (metrics?.total ?? 1)) * 100).toFixed(0)}%</span>
                     </div>
                   </div>
                 ))
@@ -132,7 +134,7 @@ export default function DashboardPage() {
                         />
                       </div>
                       <span className="text-sm font-semibold tabular-nums text-foreground">{count}</span>
-                      <span className="text-xs text-muted-foreground w-9 text-right">{((count / (metrics?.total ?? 1)) * 100).toFixed(0)}%</span>
+                      <span className="text-xs font-bold tabular-nums w-10 text-center px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">{((count / (metrics?.total ?? 1)) * 100).toFixed(0)}%</span>
                     </div>
                   </div>
                 ))
@@ -170,7 +172,7 @@ export default function DashboardPage() {
                         />
                       </div>
                       <span className="text-sm font-semibold tabular-nums text-foreground">{count}</span>
-                      <span className="text-xs text-muted-foreground w-9 text-right">{((count / (metrics?.total ?? 1)) * 100).toFixed(0)}%</span>
+                      <span className="text-xs font-bold tabular-nums w-10 text-center px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">{((count / (metrics?.total ?? 1)) * 100).toFixed(0)}%</span>
                     </div>
                   </div>
                 ))
@@ -203,7 +205,7 @@ export default function DashboardPage() {
                         />
                       </div>
                       <span className="text-sm font-semibold tabular-nums text-foreground">{count}</span>
-                      <span className="text-xs text-muted-foreground w-9 text-right">{((count / (metrics?.total ?? 1)) * 100).toFixed(0)}%</span>
+                      <span className="text-xs font-bold tabular-nums w-10 text-center px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">{((count / (metrics?.total ?? 1)) * 100).toFixed(0)}%</span>
                     </div>
                   </div>
                 ))
@@ -236,7 +238,7 @@ export default function DashboardPage() {
                         />
                       </div>
                       <span className="text-sm font-semibold tabular-nums text-foreground">{count}</span>
-                      <span className="text-xs text-muted-foreground w-9 text-right">{((count / (metrics?.total ?? 1)) * 100).toFixed(0)}%</span>
+                      <span className="text-xs font-bold tabular-nums w-10 text-center px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">{((count / (metrics?.total ?? 1)) * 100).toFixed(0)}%</span>
                     </div>
                   </div>
                 ))

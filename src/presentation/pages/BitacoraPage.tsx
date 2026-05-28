@@ -1,8 +1,10 @@
 import { useState, useCallback } from 'react'
 import { toast } from 'sonner'
+import { Upload } from 'lucide-react'
 import BitacoraTable from '@/presentation/components/bitacora/BitacoraTable'
 import BitacoraForm from '@/presentation/components/bitacora/BitacoraForm'
 import BitacoraDetail from '@/presentation/components/bitacora/BitacoraDetail'
+import ImportModal from '@/presentation/components/bitacora/ImportModal'
 import {
   useBitacoraList,
   useCreateBitacora,
@@ -26,6 +28,7 @@ export default function BitacoraPage() {
 
   const [formOpen, setFormOpen] = useState(false)
   const [detailOpen, setDetailOpen] = useState(false)
+  const [importOpen, setImportOpen] = useState(false)
   const [selectedRecord, setSelectedRecord] = useState<Bitacora | null>(null)
   const [editMode, setEditMode] = useState<'create' | 'edit'>('create')
 
@@ -100,11 +103,22 @@ export default function BitacoraPage() {
 
   return (
     <div className="space-y-4">
-      <div>
-        <h2 className="text-2xl font-bold text-foreground">Bitácora</h2>
-        <p className="text-sm text-muted-foreground mt-1">
-          Registro de incidencias y novedades de migración ERP
-        </p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-foreground">Bitácora</h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Registro de incidencias y novedades de migración ERP
+          </p>
+        </div>
+        {isAdmin() && (
+          <button
+            onClick={() => setImportOpen(true)}
+            className="flex items-center gap-2 rounded-lg border border-border bg-secondary px-3 py-2 text-sm font-medium text-foreground hover:bg-secondary/80 transition-colors"
+          >
+            <Upload className="h-4 w-4" />
+            Importar Excel
+          </button>
+        )}
       </div>
 
       <BitacoraTable
@@ -157,6 +171,11 @@ export default function BitacoraPage() {
         auditLogs={auditLogs ?? []}
         open={detailOpen}
         onClose={() => setDetailOpen(false)}
+      />
+
+      <ImportModal
+        open={importOpen}
+        onClose={() => setImportOpen(false)}
       />
     </div>
   )
