@@ -91,9 +91,15 @@ function parseDate(v: unknown): string | null {
   }
   const s = String(v).trim()
   if (!s) return null
-  const d = new Date(s)
-  if (isNaN(d.getTime())) return null
-  return d.toISOString().split('T')[0]
+  // DD/MM/YYYY o DD-MM-YYYY (formato español)
+  const ddmmyyyy = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/)
+  if (ddmmyyyy) {
+    const [, dd, mm, yyyy] = ddmmyyyy
+    return `${yyyy}-${mm.padStart(2, '0')}-${dd.padStart(2, '0')}`
+  }
+  // YYYY-MM-DD (ISO)
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s
+  return null
 }
 
 type ParsedRow = Partial<BitacoraCreate> & { _raw: Record<string, unknown>; _rowNum: number }
