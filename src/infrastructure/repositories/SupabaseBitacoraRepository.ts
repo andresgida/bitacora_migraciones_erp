@@ -8,7 +8,7 @@ export class SupabaseBitacoraRepository implements IBitacoraRepository {
   async getAll(
     filters?: BitacoraFilters,
     pagination?: PaginationParams,
-    orderBy: keyof Bitacora = 'created_at',
+    orderBy: keyof Bitacora = 'id',
     orderDir: 'asc' | 'desc' = 'desc',
   ): Promise<PaginatedResult<Bitacora>> {
     const page = pagination?.page ?? 1
