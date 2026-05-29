@@ -156,7 +156,7 @@ export class SupabaseBitacoraRepository implements IBitacoraRepository {
     for (const [estado, set] of Object.entries(byEstadoEmpresas)) {
       byEstado[estado] = set.size
     }
-    const totalEmpresas = allEmpresas.size
+    const totalEmpresas = Object.values(byEstado).reduce((a, b) => a + b, 0)
     const conSegmentacion = Object.values(bySegmentacion).reduce((a, b) => a + b, 0)
 
     return { total, totalEmpresas, byEstado, byPrioridad, byEstadoFDS, bySegmentacion, byVersion, solucionados, pendientes, conSegmentacion }
