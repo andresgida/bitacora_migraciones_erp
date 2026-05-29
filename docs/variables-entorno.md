@@ -13,6 +13,7 @@ Configuradas en Vercel (Production and Preview).
 | `NOTIFY_EMAIL_FDS_SOLUCIONADO` | Destinatarios para: **cualquier cambio de Estado FDS** (Pendiente, En proceso, Solucionado) | Correos del equipo FDS |
 Correos: jmunera@ofima.com, pperez@ofima.com
 | `NOTIFY_EMAIL_SUSPENDIDO` | Destinatarios para: **cuando una empresa queda en estado "Suspendido"** | Correos de quien deba saber de suspensiones (gerencia, CSM, etc.)Correos: darias@ofima.com, lperez@ofima.com, pperez@ofima.com |
+| `NOTIFY_EMAIL_SOLUCIONADO` | Destinatarios para: **cualquier cambio en el campo "Solucionado"** (En revisión, Si, Devuelto a FDS, etc.) | Correos separados por coma |
 
 **Ejemplo de múltiples destinatarios:**
 ```
@@ -42,6 +43,7 @@ correo1@empresa.com,correo2@empresa.com
 | Prioridad de servicio cambia | `NOTIFY_EMAIL` | Solo cuando el nuevo valor es distinto a `DEVOLUCION DE FDS` y `REVISION FORMACION` |
 | Estado FDS cambia | `NOTIFY_EMAIL_FDS_SOLUCIONADO` | Cualquier cambio de valor |
 | Estado cambia a Suspendido | `NOTIFY_EMAIL_SUSPENDIDO` | Solo al cambiar a `Suspendido` |
+| Campo Solucionado cambia | `NOTIFY_EMAIL_SOLUCIONADO` | Cualquier cambio de valor |
 
 ## Automatizaciones implementadas
 

@@ -365,6 +365,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       estado_fds_anterior: old_record?.estado_fds,
       estado_nuevo: record?.estado,
       estado_anterior: old_record?.estado,
+      solucionado_nuevo: record?.solucionado,
+      solucionado_anterior: old_record?.solucionado,
       has_old_record: !!old_record,
     }))
 
@@ -456,6 +458,32 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         else sent.push(`prioridad:${result.id}`)
       } else {
         console.warn('notify-bitacora: Prioridad changed but NOTIFY_EMAIL is not set')
+      }
+    }
+
+    // ── Case 5: Solucionado cambia ─────────────────────────────────────────────
+    console.log('notify-bitacora: case5 eval', {
+      isUpdate: type === 'UPDATE',
+      solucionado_nuevo: record.solucionado,
+      solucionado_anterior: old_record?.solucionado,
+      cambio: record.solucionado !== old_record?.solucionado,
+      notifyEmail: !!(process.env.NOTIFY_EMAIL_SOLUCIONADO),
+    })
+    if (
+      type === 'UPDATE' &&
+      record.solucionado !== old_record?.solucionado
+    ) {
+      const toEmails = (process.env.NOTIFY_EMAIL_SOLUCIONADO ?? '').split(',').map((e: string) => e.trim()).filter(Boolean)
+      if (toEmails.length > 0) {
+        const result = await sendEmail({
+          apiKey, fromName, fromEmail, to: toEmails,
+          subject: `[Bitácora] Solucionado → ${record.solucionado} — ${record.nombre_empresa} (#${record.id})`,
+          html: buildEmailHtml('UPDATE', record, old_record, appUrl),
+        })
+        if (result.error) errors.push(result.error)
+        else sent.push(`solucionado:${result.id}`)
+      } else {
+        console.warn('notify-bitacora: Solucionado changed but NOTIFY_EMAIL_SOLUCIONADO is not set')
       }
     }
 
