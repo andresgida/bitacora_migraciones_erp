@@ -355,7 +355,7 @@ export default function BitacoraTable({
           <div className="relative flex-1 min-w-[220px] max-w-xs">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Buscar empresa, descripción..."
+              placeholder="Buscar por #, empresa, descripción..."
               className="pl-9 border-border bg-popover text-foreground placeholder:text-muted-foreground focus-visible:ring-primary/30 focus-visible:border-primary"
               value={search}
               onChange={(e) => onSearch(e.target.value)}

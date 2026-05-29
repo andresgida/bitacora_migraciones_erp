@@ -19,9 +19,14 @@ export class SupabaseBitacoraRepository implements IBitacoraRepository {
     let query = supabase.from(this.table).select('*', { count: 'exact' })
 
     if (filters?.search) {
-      query = query.or(
-        `nombre_empresa.ilike.%${filters.search}%,descripcion_error.ilike.%${filters.search}%,base_datos.ilike.%${filters.search}%`,
-      )
+      const isNumeric = /^\d+$/.test(filters.search.trim())
+      if (isNumeric) {
+        query = query.eq('id', Number(filters.search.trim()))
+      } else {
+        query = query.or(
+          `nombre_empresa.ilike.%${filters.search}%,descripcion_error.ilike.%${filters.search}%,base_datos.ilike.%${filters.search}%`,
+        )
+      }
     }
     if (filters?.nombre_empresa) {
       query = query.eq('nombre_empresa', filters.nombre_empresa)
