@@ -46,6 +46,7 @@ export interface IBitacoraRepository {
 
   getDashboardMetrics(): Promise<{
     total: number
+    totalEmpresas: number
     byEstado: Record<string, number>
     byPrioridad: Record<string, number>
     byEstadoFDS: Record<string, number>

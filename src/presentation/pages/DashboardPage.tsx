@@ -67,9 +67,12 @@ export default function DashboardPage() {
       <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
         {/* Por Estado */}
         <div className="rounded-xl border border-border bg-popover p-5">
-          <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-foreground">
-            <Activity className="h-4 w-4 text-primary" />
-            Estado Cliente
+          <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-foreground justify-between">
+            <span className="flex items-center gap-2">
+              <Activity className="h-4 w-4 text-primary" />
+              Estado Cliente
+            </span>
+            <span className="text-xs font-normal text-muted-foreground">{metrics?.totalEmpresas ?? 0} empresas</span>
           </h3>
           <div className="space-y-3">
             {Object.entries(byEstado).length === 0 ? (
@@ -91,11 +94,11 @@ export default function DashboardPage() {
                       <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-secondary">
                         <div
                           className="h-full rounded-full bg-primary"
-                          style={{ width: `${((count / (metrics?.total ?? 1)) * 100).toFixed(0)}%` }}
+                          style={{ width: `${((count / (metrics?.totalEmpresas ?? 1)) * 100).toFixed(0)}%` }}
                         />
                       </div>
                       <span className="text-sm font-semibold tabular-nums text-foreground">{count}</span>
-                      <span className="text-xs font-bold tabular-nums w-10 text-center px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">{((count / (metrics?.total ?? 1)) * 100).toFixed(0)}%</span>
+                      <span className="text-xs font-bold tabular-nums w-10 text-center px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">{((count / (metrics?.totalEmpresas ?? 1)) * 100).toFixed(0)}%</span>
                     </div>
                   </div>
                 ))

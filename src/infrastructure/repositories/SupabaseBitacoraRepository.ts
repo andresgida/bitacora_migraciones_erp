@@ -122,22 +122,27 @@ export class SupabaseBitacoraRepository implements IBitacoraRepository {
 
   async getDashboardMetrics() {
     const { data, error } = await supabase.from(this.table).select(
-      'estado, prioridad_servicio, estado_fds, solucionado, segmentacion_fds, version_anterior',
+      'estado, prioridad_servicio, estado_fds, solucionado, segmentacion_fds, version_anterior, nombre_empresa',
     )
 
     if (error) throw new Error(error.message)
 
     const total = data?.length ?? 0
-    const byEstado: Record<string, number> = {}
+    const byEstadoEmpresas: Record<string, Set<string>> = {}
     const byPrioridad: Record<string, number> = {}
     const byEstadoFDS: Record<string, number> = {}
     const bySegmentacion: Record<string, number> = {}
     const byVersion: Record<string, number> = {}
+    const allEmpresas = new Set<string>()
     let solucionados = 0
     let pendientes = 0
 
     for (const row of data ?? []) {
-      if (row.estado) byEstado[row.estado] = (byEstado[row.estado] ?? 0) + 1
+      if (row.estado) {
+        if (!byEstadoEmpresas[row.estado]) byEstadoEmpresas[row.estado] = new Set()
+        if (row.nombre_empresa) byEstadoEmpresas[row.estado].add(row.nombre_empresa)
+      }
+      if (row.nombre_empresa) allEmpresas.add(row.nombre_empresa)
       if (row.prioridad_servicio)
         byPrioridad[row.prioridad_servicio] = (byPrioridad[row.prioridad_servicio] ?? 0) + 1
       if (row.estado_fds) byEstadoFDS[row.estado_fds] = (byEstadoFDS[row.estado_fds] ?? 0) + 1
@@ -147,8 +152,13 @@ export class SupabaseBitacoraRepository implements IBitacoraRepository {
       else pendientes++
     }
 
+    const byEstado: Record<string, number> = {}
+    for (const [estado, set] of Object.entries(byEstadoEmpresas)) {
+      byEstado[estado] = set.size
+    }
+    const totalEmpresas = allEmpresas.size
     const conSegmentacion = Object.values(bySegmentacion).reduce((a, b) => a + b, 0)
 
-    return { total, byEstado, byPrioridad, byEstadoFDS, bySegmentacion, byVersion, solucionados, pendientes, conSegmentacion }
+    return { total, totalEmpresas, byEstado, byPrioridad, byEstadoFDS, bySegmentacion, byVersion, solucionados, pendientes, conSegmentacion }
   }
 }
