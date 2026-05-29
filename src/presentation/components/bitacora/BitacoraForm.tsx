@@ -41,6 +41,7 @@ function SelectField({
   placeholder,
   options,
   required,
+  disabled,
 }: {
   control: ReturnType<typeof useForm<BitacoraFormData>>['control']
   name: keyof BitacoraFormData
@@ -48,6 +49,7 @@ function SelectField({
   placeholder?: string
   options: readonly string[]
   required?: boolean
+  disabled?: boolean
 }) {
   return (
     <div className="space-y-1.5">
@@ -63,6 +65,7 @@ function SelectField({
             <Select
               value={(field.value as string) ?? ''}
               onValueChange={(v) => field.onChange(v === '__NONE__' ? null : v)}
+              disabled={disabled}
             >
               <SelectTrigger className={fieldState.error ? 'border-destructive' : ''}>
                 <SelectValue placeholder={placeholder ?? `Seleccionar ${label.toLowerCase()}`} />
@@ -125,7 +128,8 @@ export default function BitacoraForm({
   } = useForm<BitacoraFormData>({
     resolver: zodResolver(BitacoraFormSchema),
     defaultValues: {
-      solucionado: false,
+      prioridad_servicio: 'REVISION FORMACION',
+      solucionado: 'En revisión',
       ...defaultValues,
     },
   })
@@ -133,7 +137,8 @@ export default function BitacoraForm({
   useEffect(() => {
     if (open) {
       reset({
-        solucionado: false,
+        prioridad_servicio: 'REVISION FORMACION',
+        solucionado: 'En revisión',
         ...defaultValues,
       })
     }
@@ -368,6 +373,7 @@ export default function BitacoraForm({
               name="prioridad_servicio"
               label="Prioridad Servicio"
               options={toCatalogArray(catPrioridad)}
+              disabled={mode === 'create'}
             />
             <div className="space-y-1.5">
               <Label htmlFor="solucionado">Solucionado</Label>
@@ -376,15 +382,20 @@ export default function BitacoraForm({
                 name="solucionado"
                 render={({ field }) => (
                   <Select
-                    value={field.value ? 'true' : 'false'}
-                    onValueChange={(v) => field.onChange(v === 'true')}
+                    value={field.value ?? ''}
+                    onValueChange={(v) => field.onChange(v || null)}
+                    disabled={mode === 'create'}
                   >
                     <SelectTrigger>
-                      <SelectValue />
+                      <SelectValue placeholder="Seleccionar..." />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="true">Sí</SelectItem>
-                      <SelectItem value="false">No</SelectItem>
+                      <SelectItem value="Si">Si</SelectItem>
+                      <SelectItem value="No">No</SelectItem>
+                      <SelectItem value="En revisión">En revisión</SelectItem>
+                      <SelectItem value="Devuelto a FDS">Devuelto a FDS</SelectItem>
+                      <SelectItem value="Devuelto a Servicios">Devuelto a Servicios</SelectItem>
+                      <SelectItem value="Revisión CSM-Cliente">Revisión CSM-Cliente</SelectItem>
                     </SelectContent>
                   </Select>
                 )}

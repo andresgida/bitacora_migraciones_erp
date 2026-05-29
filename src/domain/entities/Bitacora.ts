@@ -11,6 +11,7 @@ import type {
   EncargadoFDSType,
   SegmentacionFDSType,
   ImpactoFDSType,
+  SolucionadoType,
 } from '../value-objects/enums'
 
 export interface Bitacora {
@@ -31,7 +32,7 @@ export interface Bitacora {
   imagen_2_url: string | null
   link_video: string | null
   prioridad_servicio: PrioridadType | null
-  solucionado: boolean
+  solucionado: SolucionadoType | null
   observacion_formacion: string | null
   fecha_tentativa_solucion: string | null
   estado_fds: EstadoFDSType | null

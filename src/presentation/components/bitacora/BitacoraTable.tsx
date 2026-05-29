@@ -218,11 +218,24 @@ export default function BitacoraTable({
         accessorKey: 'solucionado',
         header: 'Solucionado',
         size: 100,
-        cell: ({ row }) => (
-          <Badge variant={row.original.solucionado ? 'default' : 'secondary'} className="text-xs">
-            {row.original.solucionado ? 'Sí' : 'No'}
-          </Badge>
-        ),
+        cell: ({ row }) => {
+          const val = row.original.solucionado
+          const isPositive = val === 'Si'
+          const isNegative = val === 'No' || !val
+          return (
+            <Badge
+              variant={isPositive ? 'default' : 'secondary'}
+              className={cn(
+                'text-xs',
+                isPositive && 'bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300',
+                isNegative && 'bg-secondary text-muted-foreground',
+                !isPositive && !isNegative && 'bg-orange-100 text-orange-800 dark:bg-orange-950 dark:text-orange-300',
+              )}
+            >
+              {val ?? 'No'}
+            </Badge>
+          )
+        },
       },
       {
         accessorKey: 'created_at',
@@ -330,7 +343,7 @@ export default function BitacoraTable({
       'Descripción Error': r.descripcion_error ?? '',
       'Link Video': r.link_video ?? '',
       Prioridad: r.prioridad_servicio ?? '',
-      Solucionado: r.solucionado ? 'Sí' : 'No',
+      Solucionado: r.solucionado ?? 'No',
       'Estado FDS': r.estado_fds ?? '',
       'Encargado FDS': r.encargado_fds ?? '',
       'Segmentación FDS': r.segmentacion_fds ?? '',

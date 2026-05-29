@@ -12,6 +12,7 @@ import {
   EncargadoFDSValues,
   SegmentacionFDSValues,
   ImpactoFDSValues,
+  SolucionadoValues,
 } from '@/domain/value-objects/enums'
 
 export const BitacoraFormSchema = z.object({
@@ -31,7 +32,7 @@ export const BitacoraFormSchema = z.object({
   imagen_2_url: z.string().nullable().optional(),
   link_video: z.string().max(5000, 'Enlace demasiado largo').nullable().optional().or(z.literal('')),
   prioridad_servicio: z.enum(PrioridadValues).nullable().optional(),
-  solucionado: z.boolean().default(false),
+  solucionado: z.enum(SolucionadoValues).nullable().optional(),
   observacion_formacion: z.string().nullable().optional(),
   fecha_tentativa_solucion: z.preprocess(v => v === '' ? null : v, z.string().nullable().optional()),
   estado_fds: z.enum(EstadoFDSValues).nullable().optional(),

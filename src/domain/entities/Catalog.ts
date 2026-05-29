@@ -18,11 +18,12 @@ export const CATALOG_CATEGORIES: Record<string, string> = {
   suite: 'Suite',
   modulo: 'Módulo',
   estado: 'Estado',
-  prioridad: 'Prioridad',
+  prioridad: 'Prioridad servicio',
   estado_fds: 'Estado FDS',
   clasificacion: 'Clasificación',
   version_anterior: 'Versión Anterior',
   encargado_fds: 'Encargado FDS',
   segmentacion_fds: 'Segmentación FDS',
   impacto_fds: 'Impacto FDS',
+  solucionado: 'Solucionado',
 }

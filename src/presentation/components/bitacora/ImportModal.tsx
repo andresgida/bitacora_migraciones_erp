@@ -74,10 +74,15 @@ const ENUM_FIELDS: Partial<Record<keyof BitacoraCreate, readonly string[]>> = {
   impacto_fds: ImpactoFDSValues,
 }
 
-function parseBoolean(v: unknown): boolean {
-  if (typeof v === 'boolean') return v
-  const s = String(v ?? '').trim().toLowerCase()
-  return ['si', 'sí', 'yes', '1', 'true', 'x'].includes(s)
+function parseSolucionado(v: unknown): string {
+  if (!v) return 'No'
+  const s = String(v).trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  if (['si', 'yes', '1', 'true', 'x', 'solucionado'].includes(s)) return 'Si'
+  if (['en revision', 'revision'].includes(s)) return 'En revisión'
+  if (['devuelto a fds', 'devuelto fds'].includes(s)) return 'Devuelto a FDS'
+  if (['devuelto a servicios', 'devuelto servicios'].includes(s)) return 'Devuelto a Servicios'
+  if (['revision csm-cliente', 'csm-cliente', 'revision csm'].includes(s)) return 'Revisión CSM-Cliente'
+  return 'No'
 }
 
 function parseDate(v: unknown): string | null {
@@ -116,7 +121,7 @@ function parseSheet(ws: XLSX.WorkSheet): { headers: string[]; mapped: string[]; 
     for (const [h, val] of Object.entries(r)) {
       const field = normalizeHeader(h)
       if (!field) continue
-      if (field === 'solucionado') { row[field] = parseBoolean(val) as never; continue }
+      if (field === 'solucionado') { row[field] = parseSolucionado(val) as never; continue }
       if (['fecha_novedad', 'fecha_definiciones', 'fecha_tentativa_solucion', 'fecha_robot_beta'].includes(field)) {
         row[field] = parseDate(val) as never; continue
       }
@@ -127,7 +132,7 @@ function parseSheet(ws: XLSX.WorkSheet): { headers: string[]; mapped: string[]; 
       row[field] = val === null || val === '' ? (null as never) : (String(val).trim() as never)
     }
     if (row.nombre_empresa === undefined) row.nombre_empresa = ''
-    if (row.solucionado === undefined) row.solucionado = false
+    if (row.solucionado === undefined) row.solucionado = 'No' as never
     return row
   })
 

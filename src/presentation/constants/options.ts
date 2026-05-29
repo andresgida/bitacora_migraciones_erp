@@ -185,6 +185,10 @@ export const ESTADO_FDS_COLORS: Record<string, string> = {
   'En proceso': 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300',
 }
 
+export const SEGMENTACION_COLORS: Record<string, string> = {
+  'Cambios Enterprise': 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300',
+}
+
 export const IMPACTO_COLORS: Record<string, string> = {
   Critico: 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300',
   Alto: 'bg-orange-100 text-orange-800 dark:bg-orange-950 dark:text-orange-300',

@@ -16,7 +16,7 @@ interface BitacoraRecord {
   clasificacion: string | null
   descripcion_error: string | null
   prioridad_servicio: string | null
-  solucionado: boolean
+  solucionado: string | null
   estado_fds: string | null
   observaciones_fds: string | null
   encargado_fds: string | null
@@ -115,7 +115,7 @@ function buildEmailHtml(
       <table style="width:100%;border-collapse:collapse;">
         ${stateChanged ? changedRow('Estado', fmt(old?.estado), fmt(record.estado)) : ''}
         ${prioChanged ? changedRow('Prioridad', fmt(old?.prioridad_servicio), fmt(record.prioridad_servicio)) : ''}
-        ${solChanged ? changedRow('Solucionado', old?.solucionado ? 'Sí' : 'No', record.solucionado ? 'Sí' : 'No') : ''}
+        ${solChanged ? changedRow('Solucionado', old?.solucionado ?? 'No', record.solucionado ?? 'No') : ''}
       </table>
     </div>`
     : ''
@@ -172,7 +172,7 @@ function buildEmailHtml(
               ${row('Clasificación', fmt(record.clasificacion))}
               ${row('Estado FDS', fmt(record.estado_fds))}
               ${row('Encargado FDS', fmt(record.encargado_fds))}
-              ${row('Solucionado', record.solucionado ? '✅ Sí' : '❌ No')}
+              ${row('Solucionado', record.solucionado === 'Si' ? '✅ Si' : (record.solucionado ?? 'No'))}
               ${record.fecha_tentativa_solucion ? row('Fecha tentativa', fmtDate(record.fecha_tentativa_solucion)) : ''}
             </table>
           </td>
@@ -253,33 +253,6 @@ async function sendEmail(opts: {
   const data = await res.json() as { messageId?: string; code?: string; message?: string }
   if (!res.ok) return { error: data }
   return { id: data.messageId }
-}
-
-// ── Auto-mark solucionado via Supabase REST ─────────────────────────────────
-
-async function autoMarkSolucionado(recordId: number): Promise<void> {
-  const supabaseUrl = process.env.SUPABASE_URL
-  const serviceKey = process.env.SUPABASE_SERVICE_KEY
-  if (!supabaseUrl || !serviceKey) {
-    console.warn('notify-bitacora: SUPABASE_URL or SUPABASE_SERVICE_KEY not set, skipping auto-mark')
-    return
-  }
-  const res = await fetch(`${supabaseUrl}/rest/v1/bitacora?id=eq.${recordId}`, {
-    method: 'PATCH',
-    headers: {
-      'apikey': serviceKey,
-      'Authorization': `Bearer ${serviceKey}`,
-      'Content-Type': 'application/json',
-      'Prefer': 'return=minimal',
-    },
-    body: JSON.stringify({ solucionado: true }),
-  })
-  if (!res.ok) {
-    const text = await res.text()
-    console.error('notify-bitacora: failed to auto-mark solucionado', text)
-  } else {
-    console.log(`notify-bitacora: auto-marked solucionado=true for record #${recordId}`)
-  }
 }
 
 // ── Targeted email templates ──────────────────────────────────────────────────
@@ -484,16 +457,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       } else {
         console.warn('notify-bitacora: Prioridad changed but NOTIFY_EMAIL is not set')
       }
-    }
-
-    // ── Case 5: Auto-marcar solucionado=true cuando prioridad cambia a SOLUCIONADO ──
-    if (
-      type === 'UPDATE' &&
-      record.prioridad_servicio === 'SOLUCIONADO' &&
-      old_record?.prioridad_servicio !== 'SOLUCIONADO' &&
-      !record.solucionado
-    ) {
-      await autoMarkSolucionado(record.id)
     }
 
     if (errors.length > 0) {

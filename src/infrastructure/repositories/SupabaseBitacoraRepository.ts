@@ -148,7 +148,7 @@ export class SupabaseBitacoraRepository implements IBitacoraRepository {
       if (row.estado_fds) byEstadoFDS[row.estado_fds] = (byEstadoFDS[row.estado_fds] ?? 0) + 1
       if (row.segmentacion_fds) bySegmentacion[row.segmentacion_fds] = (bySegmentacion[row.segmentacion_fds] ?? 0) + 1
       if (row.version_anterior) byVersion[row.version_anterior] = (byVersion[row.version_anterior] ?? 0) + 1
-      if (row.solucionado) solucionados++
+      if (row.solucionado === 'Si') solucionados++
       else pendientes++
     }
 

@@ -95,5 +95,15 @@ export type SegmentacionFDSType = (typeof SegmentacionFDSValues)[number]
 export const ImpactoFDSValues = ['Critico', 'Alto', 'Medio', 'Bajo'] as const
 export type ImpactoFDSType = (typeof ImpactoFDSValues)[number]
 
+export const SolucionadoValues = [
+  'Si',
+  'No',
+  'En revisión',
+  'Devuelto a FDS',
+  'Devuelto a Servicios',
+  'Revisión CSM-Cliente',
+] as const
+export type SolucionadoType = (typeof SolucionadoValues)[number]
+
 export const UserRoleValues = ['admin', 'readonly'] as const
 export type UserRoleType = (typeof UserRoleValues)[number]

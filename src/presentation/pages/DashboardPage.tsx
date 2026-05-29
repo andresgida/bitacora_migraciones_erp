@@ -12,7 +12,7 @@ import StatsCard from '@/presentation/components/dashboard/StatsCard'
 import { useDashboardMetrics } from '@/presentation/hooks/useDashboard'
 import LoadingSpinner from '@/presentation/components/common/LoadingSpinner'
 import { cn } from '@/lib/utils'
-import { PRIORIDAD_COLORS, ESTADO_COLORS, ESTADO_FDS_COLORS } from '@/presentation/constants/options'
+import { PRIORIDAD_COLORS, ESTADO_COLORS, ESTADO_FDS_COLORS, SEGMENTACION_COLORS } from '@/presentation/constants/options'
 
 export default function DashboardPage() {
   const { data: metrics, isLoading } = useDashboardMetrics()
@@ -230,7 +230,10 @@ export default function DashboardPage() {
                 .sort(([, a], [, b]) => b - a)
                 .map(([segmentacion, count]) => (
                   <div key={segmentacion} className="flex items-center justify-between gap-3">
-                    <span className="inline-flex shrink-0 items-center rounded-full bg-secondary px-2 py-0.5 text-xs font-medium text-foreground">
+                    <span className={cn(
+                        'inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-xs font-medium',
+                        SEGMENTACION_COLORS[segmentacion] ?? 'bg-secondary text-foreground',
+                      )}>
                       {segmentacion}
                     </span>
                     <div className="flex flex-1 items-center gap-2">
