@@ -183,11 +183,11 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Versión */}
+        {/* Proceso */}
         <div className="rounded-xl border border-border bg-popover p-5">
           <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-foreground">
             <Layers className="h-4 w-4 text-primary" />
-            Versión
+            Proceso
           </h3>
           <div className="space-y-3">
             {Object.entries(metrics?.byVersion ?? {}).length === 0 ? (

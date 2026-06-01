@@ -339,7 +339,7 @@ export default function BitacoraTable({
       Suite: r.suite ?? '',
       Módulo: r.modulo ?? '',
       Clasificación: r.clasificacion ?? '',
-      'Versión Anterior': r.version_anterior ?? '',
+      Proceso: r.version_anterior ?? '',
       'Descripción Error': r.descripcion_error ?? '',
       'Link Video': r.link_video ?? '',
       Prioridad: r.prioridad_servicio ?? '',

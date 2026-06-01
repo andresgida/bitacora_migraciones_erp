@@ -21,7 +21,7 @@ export const CATALOG_CATEGORIES: Record<string, string> = {
   prioridad: 'Prioridad servicio',
   estado_fds: 'Estado FDS',
   clasificacion: 'Clasificación',
-  version_anterior: 'Versión Anterior',
+  proceso: 'Proceso',
   encargado_fds: 'Encargado FDS',
   segmentacion_fds: 'Segmentación FDS',
   impacto_fds: 'Impacto FDS',

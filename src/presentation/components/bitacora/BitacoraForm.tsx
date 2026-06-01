@@ -107,7 +107,7 @@ export default function BitacoraForm({
   const { data: catSuite } = useCatalogOptions('suite')
   const { data: catModulo } = useCatalogOptions('modulo')
   const { data: catClasificacion } = useCatalogOptions('clasificacion')
-  const { data: catVersion } = useCatalogOptions('version_anterior')
+  const { data: catProceso } = useCatalogOptions('proceso')
   const { data: catCsm } = useCatalogOptions('csm')
   const { data: catLider } = useCatalogOptions('lider_novedad')
   const { data: catEncargadoFds } = useCatalogOptions('encargado_fds')
@@ -230,8 +230,8 @@ export default function BitacoraForm({
           <SelectField
             control={control}
             name="version_anterior"
-            label="Versión"
-            options={toCatalogArray(catVersion)}
+            label="Proceso"
+            options={toCatalogArray(catProceso)}
           />
           <SelectField control={control} name="csm" label="CSM" options={toCatalogArray(catCsm)} />
           <SelectField

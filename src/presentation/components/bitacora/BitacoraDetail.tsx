@@ -29,7 +29,7 @@ const FIELD_LABELS: Record<string, string> = {
   suite: 'Suite',
   modulo: 'Módulo',
   clasificacion: 'Clasificación',
-  version_anterior: 'Versión',
+  version_anterior: 'Proceso',
   descripcion_error: 'Descripción error',
   link_video: 'Link video',
   prioridad_servicio: 'Prioridad',
@@ -133,7 +133,7 @@ export default function BitacoraDetail({
                 <Separator className="my-1" />
                 <DetailRow label="Base de datos" value={record.base_datos} />
                 <Separator className="my-1" />
-                <DetailRow label="Versión" value={record.version_anterior} />
+                <DetailRow label="Proceso" value={record.version_anterior} />
                 <Separator className="my-1" />
                 <DetailRow
                   label="Clasificación"
