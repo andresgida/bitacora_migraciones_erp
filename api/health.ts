@@ -7,6 +7,7 @@ export default function handler(req: any, res: any) {
     env: {
       hasBrevoApiKey: !!process.env.BREVO_API_KEY,
       hasNotifyEmail: !!process.env.NOTIFY_EMAIL,
+      hasPrioridadEmail: !!process.env.NOTIFY_EMAIL_PRIORIDAD,
       hasWebhookSecret: !!process.env.WEBHOOK_SECRET,
       hasFdsSolucionadoEmail: !!process.env.NOTIFY_EMAIL_FDS_SOLUCIONADO,
       hasSuspendidoEmail: !!process.env.NOTIFY_EMAIL_SUSPENDIDO,
