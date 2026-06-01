@@ -11,9 +11,9 @@ Configuradas en Vercel (Production and Preview).
 | `NOTIFY_FROM_EMAIL` | Remitente que aparece en todos los correos ("De:") | El correo verificado en Brevo (ej: `agomez@ofima.com`) |
 | `NOTIFY_EMAIL` | Destinatarios para: **nueva incidencia (INSERT)** | Correos separados por coma de quienes deben recibir esas alertas 
 | `jmunera@ofima.com,pperez@ofima.com` |
-| `NOTIFY_EMAIL_PRIORIDAD` | Destinatarios para: **cambio de prioridad de servicio** | Correos separados por coma de quienes deben recibir esas alertas (equipo distinto al de `NOTIFY_EMAIL`) | `darias@ofima.com,lperez@ofima.com` |
+| `NOTIFY_EMAIL_PRIORIDAD` | Destinatarios para: **cambio de prioridad de servicio** | Correos separados por coma de quienes deben recibir esas alertas (equipo distinto al de `NOTIFY_EMAIL`) | `darias@ofima.com` |
 | `NOTIFY_EMAIL_FDS_SOLUCIONADO` | Destinatarios para: **cualquier cambio de Estado FDS** | `jmunera@ofima.com, pperez@ofima.com` |
-| `NOTIFY_EMAIL_SUSPENDIDO` | Destinatarios cuando el estado pasa a **Suspendido** | `darias@ofima.com, lperez@ofima.com, pperez@ofima.com` |
+| `NOTIFY_EMAIL_SUSPENDIDO` | Destinatarios cuando el estado pasa a **Suspendido** | `darias@ofima.com, pperez@ofima.com` |
 | `NOTIFY_EMAIL_SOLUCIONADO` | Destinatarios para **cambios en el campo Solucionado** | Correos separados por coma |
 
 **Ejemplo de múltiples destinatarios:**

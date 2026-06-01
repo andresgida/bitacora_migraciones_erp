@@ -63,7 +63,11 @@ function SelectField({
         render={({ field, fieldState }) => (
           <>
             <Select
-              value={(field.value as string) ?? ''}
+              value={
+                field.value && String(field.value).trim() !== ''
+                  ? (field.value as string)
+                  : '__NONE__'
+              }
               onValueChange={(v) => field.onChange(v === '__NONE__' ? null : v)}
               disabled={disabled}
             >
@@ -382,14 +386,21 @@ export default function BitacoraForm({
                 name="solucionado"
                 render={({ field }) => (
                   <Select
-                    value={field.value ?? ''}
-                    onValueChange={(v) => field.onChange(v || null)}
+                    value={
+                      field.value && String(field.value).trim() !== ''
+                        ? field.value
+                        : '__NONE__'
+                    }
+                    onValueChange={(v) => field.onChange(v === '__NONE__' ? null : v)}
                     disabled={mode === 'create'}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Seleccionar..." />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="__NONE__">
+                        <span className="text-muted-foreground">— Sin seleccionar —</span>
+                      </SelectItem>
                       <SelectItem value="Si">Si</SelectItem>
                       <SelectItem value="No">No</SelectItem>
                       <SelectItem value="En revisión">En revisión</SelectItem>
