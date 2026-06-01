@@ -46,7 +46,12 @@ import {
   ESTADO_FDS_COLORS,
 } from '@/presentation/constants/options'
 import type { Bitacora } from '@/domain/entities/Bitacora'
-import { EstadoValues, PrioridadValues, EstadoFDSValues } from '@/domain/value-objects/enums'
+import {
+  EstadoValues,
+  PrioridadValues,
+  EstadoFDSValues,
+  SolucionadoValues,
+} from '@/domain/value-objects/enums'
 
 interface BitacoraTableProps {
   data: Bitacora[]
@@ -65,10 +70,12 @@ interface BitacoraTableProps {
   filterEstado: string
   filterPrioridad: string
   filterEstadoFDS: string
+  filterSolucionado: string
   search: string
   onFilterEstado: (v: string) => void
   onFilterPrioridad: (v: string) => void
   onFilterEstadoFDS: (v: string) => void
+  onFilterSolucionado: (v: string) => void
   onSearch: (v: string) => void
 }
 
@@ -117,10 +124,12 @@ export default function BitacoraTable({
   filterEstado,
   filterPrioridad,
   filterEstadoFDS,
+  filterSolucionado,
   search,
   onFilterEstado,
   onFilterPrioridad,
   onFilterEstadoFDS,
+  onFilterSolucionado,
   onSearch,
 }: BitacoraTableProps) {
   const [sorting, setSorting] = useState<SortingState>([])
@@ -381,6 +390,7 @@ export default function BitacoraTable({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="__ALL__">Todos los estados</SelectItem>
+              <SelectItem value="__EMPTY__">Estado no configurado</SelectItem>
               {EstadoValues.map((v) => (
                 <SelectItem key={v} value={v}>{v}</SelectItem>
               ))}
@@ -393,6 +403,7 @@ export default function BitacoraTable({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="__ALL__">Todas las prioridades</SelectItem>
+              <SelectItem value="__EMPTY__">Estado no configurado</SelectItem>
               {PrioridadValues.map((v) => (
                 <SelectItem key={v} value={v}>{v}</SelectItem>
               ))}
@@ -405,7 +416,21 @@ export default function BitacoraTable({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="__ALL__">Todo FDS</SelectItem>
+              <SelectItem value="__EMPTY__">Estado no configurado</SelectItem>
               {EstadoFDSValues.map((v) => (
+                <SelectItem key={v} value={v}>{v}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={filterSolucionado} onValueChange={onFilterSolucionado}>
+            <SelectTrigger className="w-44 border-border bg-popover text-secondary-foreground">
+              <SelectValue placeholder="Solucionado" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__ALL__">Todo solucionado</SelectItem>
+              <SelectItem value="__EMPTY__">Estado no configurado</SelectItem>
+              {SolucionadoValues.map((v) => (
                 <SelectItem key={v} value={v}>{v}</SelectItem>
               ))}
             </SelectContent>

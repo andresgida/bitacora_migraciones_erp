@@ -26,6 +26,7 @@ export default function BitacoraPage() {
   const [filterEstado, setFilterEstado] = useState('__ALL__')
   const [filterPrioridad, setFilterPrioridad] = useState('__ALL__')
   const [filterEstadoFDS, setFilterEstadoFDS] = useState('__ALL__')
+  const [filterSolucionado, setFilterSolucionado] = useState('__ALL__')
 
   const [formOpen, setFormOpen] = useState(false)
   const [detailOpen, setDetailOpen] = useState(false)
@@ -35,9 +36,26 @@ export default function BitacoraPage() {
 
   const filters = {
     ...(search ? { search } : {}),
-    ...(filterEstado !== '__ALL__' ? { estado: filterEstado } : {}),
-    ...(filterPrioridad !== '__ALL__' ? { prioridad_servicio: filterPrioridad } : {}),
-    ...(filterEstadoFDS !== '__ALL__' ? { estado_fds: filterEstadoFDS } : {}),
+    ...(filterEstado === '__EMPTY__'
+      ? { estadoEmpty: true }
+      : filterEstado !== '__ALL__'
+        ? { estado: filterEstado }
+        : {}),
+    ...(filterPrioridad === '__EMPTY__'
+      ? { prioridadEmpty: true }
+      : filterPrioridad !== '__ALL__'
+        ? { prioridad_servicio: filterPrioridad }
+        : {}),
+    ...(filterEstadoFDS === '__EMPTY__'
+      ? { estadoFdsEmpty: true }
+      : filterEstadoFDS !== '__ALL__'
+        ? { estado_fds: filterEstadoFDS }
+        : {}),
+    ...(filterSolucionado === '__EMPTY__'
+      ? { solucionadoEmpty: true }
+      : filterSolucionado !== '__ALL__'
+        ? { solucionado: filterSolucionado }
+        : {}),
   }
 
   const pagination = { page, pageSize }
@@ -142,6 +160,7 @@ export default function BitacoraPage() {
         filterEstado={filterEstado}
         filterPrioridad={filterPrioridad}
         filterEstadoFDS={filterEstadoFDS}
+        filterSolucionado={filterSolucionado}
         search={search}
         onFilterEstado={(v) => {
           setFilterEstado(v)
@@ -153,6 +172,10 @@ export default function BitacoraPage() {
         }}
         onFilterEstadoFDS={(v) => {
           setFilterEstadoFDS(v)
+          setPage(1)
+        }}
+        onFilterSolucionado={(v) => {
+          setFilterSolucionado(v)
           setPage(1)
         }}
         onSearch={handleSearchChange}

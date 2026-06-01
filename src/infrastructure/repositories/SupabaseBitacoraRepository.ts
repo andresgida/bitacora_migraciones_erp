@@ -31,10 +31,14 @@ export class SupabaseBitacoraRepository implements IBitacoraRepository {
     if (filters?.nombre_empresa) {
       query = query.eq('nombre_empresa', filters.nombre_empresa)
     }
-    if (filters?.estado) {
+    if (filters?.estadoEmpty) {
+      query = query.or('estado.is.null,estado.eq.')
+    } else if (filters?.estado) {
       query = query.eq('estado', filters.estado)
     }
-    if (filters?.prioridad_servicio) {
+    if (filters?.prioridadEmpty) {
+      query = query.or('prioridad_servicio.is.null,prioridad_servicio.eq.')
+    } else if (filters?.prioridad_servicio) {
       query = query.eq('prioridad_servicio', filters.prioridad_servicio)
     }
     if (filters?.csm) {
@@ -49,10 +53,14 @@ export class SupabaseBitacoraRepository implements IBitacoraRepository {
     if (filters?.modulo) {
       query = query.eq('modulo', filters.modulo)
     }
-    if (filters?.solucionado !== undefined) {
+    if (filters?.solucionadoEmpty) {
+      query = query.or('solucionado.is.null,solucionado.eq.')
+    } else if (filters?.solucionado) {
       query = query.eq('solucionado', filters.solucionado)
     }
-    if (filters?.estado_fds) {
+    if (filters?.estadoFdsEmpty) {
+      query = query.or('estado_fds.is.null,estado_fds.eq.')
+    } else if (filters?.estado_fds) {
       query = query.eq('estado_fds', filters.estado_fds)
     }
     if (filters?.fecha_desde) {

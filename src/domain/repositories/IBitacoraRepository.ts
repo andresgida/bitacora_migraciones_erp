@@ -4,13 +4,17 @@ export interface BitacoraFilters {
   search?: string
   nombre_empresa?: string
   estado?: string
+  estadoEmpty?: boolean
   prioridad_servicio?: string
+  prioridadEmpty?: boolean
   csm?: string
   lider_novedad?: string
   suite?: string
   modulo?: string
-  solucionado?: boolean
+  solucionado?: string
+  solucionadoEmpty?: boolean
   estado_fds?: string
+  estadoFdsEmpty?: boolean
   fecha_desde?: string
   fecha_hasta?: string
 }
