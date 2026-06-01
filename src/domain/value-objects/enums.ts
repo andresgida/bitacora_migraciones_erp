@@ -45,9 +45,6 @@ export type ModuloType = (typeof ModuloValues)[number]
 export const ClasificacionValues = ['Estandar', 'Especifico'] as const
 export type ClasificacionType = (typeof ClasificacionValues)[number]
 
-export const VersionAnteriorValues = ['2023', '2024', '2025', '2026'] as const
-export type VersionAnteriorType = (typeof VersionAnteriorValues)[number]
-
 export const CSMValues = [
   'Adriana Cárdenas',
   'Javier Cano',

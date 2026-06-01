@@ -5,7 +5,6 @@ import type {
   SuiteType,
   ModuloType,
   ClasificacionType,
-  VersionAnteriorType,
   CSMType,
   LiderNovedadType,
   EncargadoFDSType,
@@ -26,7 +25,7 @@ export interface Bitacora {
   suite: SuiteType | null
   modulo: ModuloType | null
   clasificacion: ClasificacionType | null
-  version_anterior: VersionAnteriorType | null
+  version_anterior: string | null
   descripcion_error: string | null
   imagen_1_url: string | null
   imagen_2_url: string | null

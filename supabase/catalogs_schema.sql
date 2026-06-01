@@ -91,11 +91,10 @@ INSERT INTO public.catalogs (category, value, order_index) VALUES
 ('clasificacion', 'Estandar', 1),
 ('clasificacion', 'Especifico', 2),
 
--- Versión anterior
-('version_anterior', '2023', 1),
-('version_anterior', '2024', 2),
-('version_anterior', '2025', 3),
-('version_anterior', '2026', 4),
+-- Versión anterior (valores gestionados en catálogo; alinear con producción)
+('version_anterior', 'Migración', 1),
+('version_anterior', 'Robot', 2),
+('version_anterior', '2026', 3),
 
 -- CSM
 ('csm', 'Adriana Cárdenas', 1),

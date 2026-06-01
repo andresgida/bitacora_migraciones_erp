@@ -11,7 +11,7 @@ import { BITACORA_QUERY_KEY } from '@/presentation/hooks/useBitacora'
 import type { BitacoraCreate } from '@/domain/entities/Bitacora'
 import {
   EstadoValues, PrioridadValues, EstadoFDSValues, SuiteValues, ModuloValues,
-  ClasificacionValues, VersionAnteriorValues, CSMValues, LiderNovedadValues,
+  ClasificacionValues, CSMValues, LiderNovedadValues,
   EncargadoFDSValues, SegmentacionFDSValues, ImpactoFDSValues,
 } from '@/domain/value-objects/enums'
 
@@ -66,7 +66,6 @@ const ENUM_FIELDS: Partial<Record<keyof BitacoraCreate, readonly string[]>> = {
   suite: SuiteValues,
   modulo: ModuloValues,
   clasificacion: ClasificacionValues,
-  version_anterior: VersionAnteriorValues,
   csm: CSMValues,
   lider_novedad: LiderNovedadValues,
   encargado_fds: EncargadoFDSValues,
