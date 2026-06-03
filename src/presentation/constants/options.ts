@@ -177,6 +177,7 @@ export const ESTADO_COLORS: Record<string, string> = {
   'En vivo': 'bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300',
   Suspendido: 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300',
   'Sin iniciar': 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300',
+  Implementación: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300',
 }
 
 export const ESTADO_FDS_COLORS: Record<string, string> = {

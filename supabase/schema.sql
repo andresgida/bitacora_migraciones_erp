@@ -37,8 +37,8 @@ CREATE TABLE IF NOT EXISTS public.bitacora (
   fecha_definiciones      DATE,
   nombre_empresa          TEXT NOT NULL,
 
-  -- Estado / BD
-  estado                  TEXT CHECK (estado IN ('En pruebas', 'En vivo', 'Suspendido', 'Sin iniciar')),
+  -- Estado / BD (valores validados vía catálogo dinámico en public.catalogs)
+  estado                  TEXT,
   base_datos              TEXT,
 
   -- Equipo
@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS public.bitacora (
   -- Técnico
   suite                   TEXT,
   modulo                  TEXT,
-  clasificacion           TEXT CHECK (clasificacion IN ('Estandar', 'Especifico')),
+  clasificacion           TEXT,
   version_anterior        TEXT,
 
   -- Descripción
@@ -64,12 +64,12 @@ CREATE TABLE IF NOT EXISTS public.bitacora (
 
   -- FDS
   fecha_tentativa_solucion DATE,
-  estado_fds              TEXT CHECK (estado_fds IN ('Solucionado', 'Pendiente', 'En proceso')),
+  estado_fds              TEXT,
   observaciones_fds       TEXT,
   encargado_fds           TEXT,
   azure_url               TEXT,
   segmentacion_fds        TEXT,
-  impacto_fds             TEXT CHECK (impacto_fds IN ('Critico', 'Alto', 'Medio', 'Bajo')),
+  impacto_fds             TEXT,
 
   -- Metadata
   created_by              UUID REFERENCES auth.users(id) ON DELETE SET NULL,

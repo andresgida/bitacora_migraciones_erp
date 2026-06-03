@@ -1,4 +1,4 @@
-export const EstadoValues = ['En pruebas', 'En vivo', 'Suspendido', 'Sin iniciar'] as const
+export const EstadoValues = ['En pruebas', 'En vivo', 'Suspendido', 'Sin iniciar', 'Implementación'] as const
 export type EstadoType = (typeof EstadoValues)[number]
 
 export const PrioridadValues = [

@@ -42,6 +42,7 @@ INSERT INTO public.catalogs (category, value, order_index) VALUES
 ('estado', 'En vivo', 2),
 ('estado', 'Suspendido', 3),
 ('estado', 'Sin iniciar', 4),
+('estado', 'Implementación', 5),
 
 -- Prioridad
 ('prioridad', 'URGENTE', 1),
