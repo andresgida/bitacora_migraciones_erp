@@ -430,9 +430,9 @@ export default function BitacoraTable({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="flex min-h-0 flex-1 flex-col gap-4">
       {/* ── Toolbar ── */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex shrink-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-1 items-center gap-2 flex-wrap">
           <div className="relative flex-1 min-w-[220px] max-w-xs">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -608,10 +608,10 @@ export default function BitacoraTable({
         </div>
       </div>
 
-      <div className="rounded-xl border border-border bg-card overflow-hidden">
-        <div className="overflow-x-auto">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border bg-card">
+        <div className="min-h-0 flex-1 overflow-auto">
           <table className="w-full text-sm">
-            <thead>
+            <thead className="sticky top-0 z-10 bg-secondary/95 backdrop-blur-sm">
               {table.getHeaderGroups().map((hg) => (
                 <tr key={hg.id} className="border-b border-border bg-secondary/50">
                   {hg.headers.map((header) => (
@@ -681,9 +681,8 @@ export default function BitacoraTable({
             </tbody>
           </table>
         </div>
-      </div>
 
-      <div className="flex items-center justify-between text-sm text-muted-foreground">
+        <div className="flex shrink-0 items-center justify-between border-t border-border bg-card px-4 py-3 text-sm text-muted-foreground">
         <div className="flex items-center gap-2">
           <span>Filas por página:</span>
           <Select
@@ -728,6 +727,7 @@ export default function BitacoraTable({
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
+        </div>
         </div>
       </div>
     </div>

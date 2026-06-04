@@ -138,8 +138,8 @@ export default function BitacoraPage() {
   }, [])
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-start justify-between">
+    <div className="flex h-[calc(100dvh-9rem)] min-h-0 flex-col gap-4">
+      <div className="flex shrink-0 items-start justify-between">
         <div>
           <h2 className="text-2xl font-bold text-foreground">Bitácora</h2>
           <p className="text-sm text-muted-foreground mt-1">
@@ -157,6 +157,7 @@ export default function BitacoraPage() {
         )}
       </div>
 
+      <div className="flex min-h-0 flex-1 flex-col">
       <BitacoraTable
         data={records}
         total={total}
@@ -223,6 +224,7 @@ export default function BitacoraPage() {
         onSearch={handleSearchChange}
         exportFilters={filters}
       />
+      </div>
 
       <BitacoraForm
         open={formOpen}
