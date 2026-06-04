@@ -1,4 +1,4 @@
-import { Moon, Sun, Bell, Search, LogOut } from 'lucide-react'
+import { Moon, Sun, Bell, Search, LogOut, PanelLeft } from 'lucide-react'
 import { useLocation } from 'react-router-dom'
 import { useAuth } from '@/presentation/hooks/useAuth'
 import { useUIStore } from '@/presentation/stores/uiStore'
@@ -11,7 +11,7 @@ const ROUTE_LABELS: Record<string, string> = {
 
 export default function Header() {
   const { profile, signOut } = useAuth()
-  const { darkMode, toggleDarkMode } = useUIStore()
+  const { darkMode, toggleDarkMode, toggleSidebar } = useUIStore()
   const { pathname } = useLocation()
 
   const routeLabel = ROUTE_LABELS[pathname] ?? 'Inicio'
@@ -25,7 +25,15 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-40 flex h-16 shrink-0 items-center justify-between border-b border-border bg-background px-8">
       {/* Breadcrumbs */}
-      <nav className="flex items-center gap-1 text-sm text-muted-foreground">
+      <nav className="flex items-center gap-3 text-sm text-muted-foreground">
+        <button
+          type="button"
+          onClick={toggleSidebar}
+          title="Alternar menú lateral"
+          className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+        >
+          <PanelLeft className="h-4 w-4" />
+        </button>
         <span>Bitácora</span>
         <span className="text-border">/</span>
         <span className="font-semibold text-primary border-b-2 border-primary pb-0.5">{routeLabel}</span>

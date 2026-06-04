@@ -19,6 +19,8 @@ export interface BitacoraFilters {
   fecha_hasta?: string
   fecha_robot_desde?: string
   fecha_robot_hasta?: string
+  estado_incidencia?: string
+  estadoIncidenciaEmpty?: boolean
 }
 
 export interface PaginationParams {
@@ -41,6 +43,12 @@ export interface IBitacoraRepository {
     orderBy?: keyof Bitacora,
     orderDir?: 'asc' | 'desc',
   ): Promise<PaginatedResult<Bitacora>>
+
+  getAllFiltered(
+    filters?: BitacoraFilters,
+    orderBy?: keyof Bitacora,
+    orderDir?: 'asc' | 'desc',
+  ): Promise<Bitacora[]>
 
   getById(id: number): Promise<Bitacora | null>
 

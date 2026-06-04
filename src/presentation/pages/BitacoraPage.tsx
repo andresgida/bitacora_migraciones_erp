@@ -27,6 +27,7 @@ export default function BitacoraPage() {
   const [filterPrioridad, setFilterPrioridad] = useState<string[]>([])
   const [filterEstadoFDS, setFilterEstadoFDS] = useState('__ALL__')
   const [filterSolucionado, setFilterSolucionado] = useState('__ALL__')
+  const [filterEstadoIncidencia, setFilterEstadoIncidencia] = useState('__ALL__')
   const [filterFechaDesde, setFilterFechaDesde] = useState('')
   const [filterFechaHasta, setFilterFechaHasta] = useState('')
   const [filterFechaRobotDesde, setFilterFechaRobotDesde] = useState('')
@@ -62,6 +63,11 @@ export default function BitacoraPage() {
       ? { solucionadoEmpty: true }
       : filterSolucionado !== '__ALL__'
         ? { solucionado: filterSolucionado }
+        : {}),
+    ...(filterEstadoIncidencia === '__EMPTY__'
+      ? { estadoIncidenciaEmpty: true }
+      : filterEstadoIncidencia !== '__ALL__'
+        ? { estado_incidencia: filterEstadoIncidencia }
         : {}),
     ...(filterFechaDesde ? { fecha_desde: filterFechaDesde } : {}),
     ...(filterFechaHasta ? { fecha_hasta: filterFechaHasta } : {}),
@@ -172,6 +178,7 @@ export default function BitacoraPage() {
         filterPrioridad={filterPrioridad}
         filterEstadoFDS={filterEstadoFDS}
         filterSolucionado={filterSolucionado}
+        filterEstadoIncidencia={filterEstadoIncidencia}
         filterFechaDesde={filterFechaDesde}
         filterFechaHasta={filterFechaHasta}
         filterFechaRobotDesde={filterFechaRobotDesde}
@@ -193,6 +200,10 @@ export default function BitacoraPage() {
           setFilterSolucionado(v)
           setPage(1)
         }}
+        onFilterEstadoIncidencia={(v) => {
+          setFilterEstadoIncidencia(v)
+          setPage(1)
+        }}
         onFilterFechaDesde={(v) => {
           setFilterFechaDesde(v)
           setPage(1)
@@ -210,6 +221,7 @@ export default function BitacoraPage() {
           setPage(1)
         }}
         onSearch={handleSearchChange}
+        exportFilters={filters}
       />
 
       <BitacoraForm

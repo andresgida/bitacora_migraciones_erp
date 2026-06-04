@@ -43,6 +43,16 @@ export function truncate(str: string, maxLength: number): string {
 
 export type EstadoIncidenciaType = 'Vencido' | 'A tiempo' | 'Resuelto'
 
+export const EstadoIncidenciaValues = ['Vencido', 'A tiempo', 'Resuelto'] as const
+
+export function getTodayISO(): string {
+  const today = new Date()
+  const y = today.getFullYear()
+  const m = String(today.getMonth() + 1).padStart(2, '0')
+  const d = String(today.getDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
+}
+
 /** Estado calculado según Fecha Robot Oficial y campo Solucionado. */
 export function getEstadoIncidencia(
   fechaRobotOficial: string | null | undefined,

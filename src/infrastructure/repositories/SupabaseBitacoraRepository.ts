@@ -1,6 +1,7 @@
 import { supabase } from '../supabase/client'
 import type { IBitacoraRepository, BitacoraFilters, PaginationParams, PaginatedResult } from '@/domain/repositories/IBitacoraRepository'
 import type { Bitacora, BitacoraCreate, BitacoraUpdate } from '@/domain/entities/Bitacora'
+import { getTodayISO } from '@/lib/utils'
 
 export class SupabaseBitacoraRepository implements IBitacoraRepository {
   private readonly table = 'bitacora'
@@ -78,6 +79,22 @@ export class SupabaseBitacoraRepository implements IBitacoraRepository {
     if (filters?.fecha_robot_hasta) {
       query = query.lte('fecha_tentativa_solucion', filters.fecha_robot_hasta)
     }
+    if (filters?.estado_incidencia === 'Resuelto') {
+      query = query.eq('solucionado', 'Si')
+    } else if (filters?.estado_incidencia === 'Vencido') {
+      const today = getTodayISO()
+      query = query
+        .or('solucionado.eq.No,solucionado.is.null')
+        .lt('fecha_tentativa_solucion', today)
+        .not('fecha_tentativa_solucion', 'is', null)
+    } else if (filters?.estado_incidencia === 'A tiempo') {
+      const today = getTodayISO()
+      query = query.or('solucionado.eq.No,solucionado.is.null').gte('fecha_tentativa_solucion', today)
+    } else if (filters?.estadoIncidenciaEmpty) {
+      query = query.or(
+        'and(solucionado.eq.No,fecha_tentativa_solucion.is.null),and(solucionado.is.null,fecha_tentativa_solucion.is.null),and(solucionado.not.in.(Si,No),solucionado.not.is.null)',
+      )
+    }
 
     query = query.order(orderBy as string, { ascending: orderDir === 'asc' }).range(from, to)
 
@@ -93,6 +110,25 @@ export class SupabaseBitacoraRepository implements IBitacoraRepository {
       pageSize,
       totalPages: Math.ceil(total / pageSize),
     }
+  }
+
+  async getAllFiltered(
+    filters?: BitacoraFilters,
+    orderBy: keyof Bitacora = 'id',
+    orderDir: 'asc' | 'desc' = 'desc',
+  ): Promise<Bitacora[]> {
+    const batchSize = 1000
+    const all: Bitacora[] = []
+    let page = 1
+
+    while (true) {
+      const result = await this.getAll(filters, { page, pageSize: batchSize }, orderBy, orderDir)
+      all.push(...result.data)
+      if (page >= result.totalPages || result.data.length === 0) break
+      page++
+    }
+
+    return all
   }
 
   async getById(id: number): Promise<Bitacora | null> {

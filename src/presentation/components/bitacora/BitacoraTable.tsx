@@ -22,8 +22,9 @@ import {
   ChevronLeft,
   ChevronRight,
   X,
+  Loader2,
 } from 'lucide-react'
-import * as XLSX from 'xlsx'
+import { toast } from 'sonner'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Badge } from '../ui/badge'
@@ -41,7 +42,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
 import MultiSelectFilter from '@/presentation/components/common/MultiSelectFilter'
 import FilterField from '@/presentation/components/common/FilterField'
-import { cn, formatDate, getEstadoIncidencia } from '@/lib/utils'
+import { cn, formatDate, getEstadoIncidencia, EstadoIncidenciaValues } from '@/lib/utils'
 import {
   PRIORIDAD_COLORS,
   ESTADO_COLORS,
@@ -49,6 +50,9 @@ import {
   ESTADO_INCIDENCIA_COLORS,
 } from '@/presentation/constants/options'
 import type { Bitacora } from '@/domain/entities/Bitacora'
+import type { BitacoraFilters } from '@/domain/repositories/IBitacoraRepository'
+import { fetchBitacoraForExport } from '@/presentation/hooks/useBitacora'
+import { downloadBitacoraExcel } from '@/presentation/utils/bitacoraExport'
 import {
   EstadoValues,
   PrioridadValues,
@@ -74,6 +78,7 @@ interface BitacoraTableProps {
   filterPrioridad: string[]
   filterEstadoFDS: string
   filterSolucionado: string
+  filterEstadoIncidencia: string
   filterFechaDesde: string
   filterFechaHasta: string
   filterFechaRobotDesde: string
@@ -83,11 +88,13 @@ interface BitacoraTableProps {
   onFilterPrioridad: (v: string[]) => void
   onFilterEstadoFDS: (v: string) => void
   onFilterSolucionado: (v: string) => void
+  onFilterEstadoIncidencia: (v: string) => void
   onFilterFechaDesde: (v: string) => void
   onFilterFechaHasta: (v: string) => void
   onFilterFechaRobotDesde: (v: string) => void
   onFilterFechaRobotHasta: (v: string) => void
   onSearch: (v: string) => void
+  exportFilters: BitacoraFilters
 }
 
 function PriorityBadge({ value }: { value: string | null }) {
@@ -160,6 +167,7 @@ export default function BitacoraTable({
   filterPrioridad,
   filterEstadoFDS,
   filterSolucionado,
+  filterEstadoIncidencia,
   filterFechaDesde,
   filterFechaHasta,
   filterFechaRobotDesde,
@@ -169,13 +177,16 @@ export default function BitacoraTable({
   onFilterPrioridad,
   onFilterEstadoFDS,
   onFilterSolucionado,
+  onFilterEstadoIncidencia,
   onFilterFechaDesde,
   onFilterFechaHasta,
   onFilterFechaRobotDesde,
   onFilterFechaRobotHasta,
   onSearch,
+  exportFilters,
 }: BitacoraTableProps) {
   const [sorting, setSorting] = useState<SortingState>([])
+  const [isExporting, setIsExporting] = useState(false)
 
   const columns = useMemo<ColumnDef<Bitacora>[]>(
     () => [
@@ -301,6 +312,8 @@ export default function BitacoraTable({
       },
       {
         id: 'estado_incidencias',
+        accessorFn: (row) =>
+          getEstadoIncidencia(row.fecha_tentativa_solucion, row.solucionado) ?? '',
         header: 'Estado de incidencias',
         size: 140,
         cell: ({ row }) => (
@@ -399,41 +412,21 @@ export default function BitacoraTable({
     pageCount: totalPages,
   })
 
-  function exportToExcel() {
-    const rows = data.map((r) => ({
-      ID: r.id,
-      'Fecha Novedad': r.fecha_novedad ?? '',
-      'Fecha Definiciones': r.fecha_definiciones ?? '',
-      Empresa: r.nombre_empresa,
-      Estado: r.estado ?? '',
-      'Base de Datos': r.base_datos ?? '',
-      CSM: r.csm ?? '',
-      'Líder Novedad': r.lider_novedad ?? '',
-      Suite: r.suite ?? '',
-      Módulo: r.modulo ?? '',
-      Clasificación: r.clasificacion ?? '',
-      Proceso: r.version_anterior ?? '',
-      'Descripción Error': r.descripcion_error ?? '',
-      'Link Video': r.link_video ?? '',
-      Prioridad: r.prioridad_servicio ?? '',
-      Solucionado: r.solucionado ?? 'No',
-      'Estado de incidencias':
-        getEstadoIncidencia(r.fecha_tentativa_solucion, r.solucionado) ?? '',
-      'Estado FDS': r.estado_fds ?? '',
-      'Encargado FDS': r.encargado_fds ?? '',
-      'Segmentación FDS': r.segmentacion_fds ?? '',
-      'Impacto FDS': r.impacto_fds ?? '',
-      'Azure URL': r.azure_url ?? '',
-      'Fecha Robot Oficial': r.fecha_tentativa_solucion ?? '',
-      'Fecha robot beta': r.fecha_robot_beta ?? '',
-      'Observaciones FDS': r.observaciones_fds ?? '',
-      Creado: r.created_at,
-    }))
-
-    const ws = XLSX.utils.json_to_sheet(rows)
-    const wb = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(wb, ws, 'Bitácora')
-    XLSX.writeFile(wb, `bitacora_migraciones_${new Date().toISOString().slice(0, 10)}.xlsx`)
+  async function exportToExcel() {
+    setIsExporting(true)
+    try {
+      const records = await fetchBitacoraForExport(exportFilters)
+      if (records.length === 0) {
+        toast.info('No hay registros para exportar con los filtros actuales')
+        return
+      }
+      downloadBitacoraExcel(records)
+      toast.success(`Exportados ${records.length} registros`)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Error al exportar')
+    } finally {
+      setIsExporting(false)
+    }
   }
 
   return (
@@ -499,6 +492,21 @@ export default function BitacoraTable({
                 <SelectItem value="__ALL__">Todo solucionado</SelectItem>
                 <SelectItem value="__EMPTY__">Estado no configurado</SelectItem>
                 {SolucionadoValues.map((v) => (
+                  <SelectItem key={v} value={v}>{v}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </FilterField>
+
+          <FilterField label="Est. incidencias">
+            <Select value={filterEstadoIncidencia} onValueChange={onFilterEstadoIncidencia}>
+              <SelectTrigger className={selectFilterTriggerClass}>
+                <SelectValue placeholder="Todos" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="__ALL__">Todos</SelectItem>
+                <SelectItem value="__EMPTY__">Sin estado</SelectItem>
+                {EstadoIncidenciaValues.map((v) => (
                   <SelectItem key={v} value={v}>{v}</SelectItem>
                 ))}
               </SelectContent>
@@ -577,10 +585,15 @@ export default function BitacoraTable({
             variant="outline"
             size="sm"
             onClick={exportToExcel}
+            disabled={isExporting}
             className="gap-2 border-border bg-secondary text-secondary-foreground hover:bg-accent hover:text-foreground"
           >
-            <Download className="h-4 w-4" />
-            Exportar
+            {isExporting ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Download className="h-4 w-4" />
+            )}
+            {isExporting ? 'Exportando...' : 'Exportar'}
           </Button>
           {isAdmin && (
             <Button

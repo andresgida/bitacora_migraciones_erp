@@ -18,6 +18,10 @@ const deleteUC = new DeleteBitacoraUseCase(bitacoraRepo, auditRepo)
 
 export const BITACORA_QUERY_KEY = 'bitacora'
 
+export function fetchBitacoraForExport(filters?: BitacoraFilters) {
+  return bitacoraRepo.getAllFiltered(filters)
+}
+
 export function useBitacoraList(
   filters?: BitacoraFilters,
   pagination?: PaginationParams,
