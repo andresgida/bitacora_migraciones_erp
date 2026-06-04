@@ -214,7 +214,7 @@ function buildEmailHtml(
         <tr>
           <td style="background:${bgMain};border:1px solid ${border};border-top:1px solid ${border};border-radius:0 0 12px 12px;padding:20px 32px;">
             <p style="margin:0;font-size:12px;color:${textMuted};line-height:1.5;">
-              Bitácora ERP Migration 2026 · Mensaje automático, no responder.<br>
+              Bitácora ERP Migración 2026 · Mensaje automático, no responder.<br>
               Generado el ${new Date().toLocaleString('es-CO', { timeZone: 'America/Bogota' })} (COT)
             </p>
           </td>

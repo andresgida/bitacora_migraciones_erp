@@ -36,10 +36,13 @@ export class SupabaseBitacoraRepository implements IBitacoraRepository {
     } else if (filters?.estado) {
       query = query.eq('estado', filters.estado)
     }
-    if (filters?.prioridadEmpty) {
+    if (filters?.prioridadEmpty && filters?.prioridad_servicio?.length) {
+      const quoted = filters.prioridad_servicio.map((v) => `"${v.replace(/"/g, '""')}"`).join(',')
+      query = query.or(`prioridad_servicio.is.null,prioridad_servicio.eq.,prioridad_servicio.in.(${quoted})`)
+    } else if (filters?.prioridadEmpty) {
       query = query.or('prioridad_servicio.is.null,prioridad_servicio.eq.')
-    } else if (filters?.prioridad_servicio) {
-      query = query.eq('prioridad_servicio', filters.prioridad_servicio)
+    } else if (filters?.prioridad_servicio?.length) {
+      query = query.in('prioridad_servicio', filters.prioridad_servicio)
     }
     if (filters?.csm) {
       query = query.eq('csm', filters.csm)
@@ -68,6 +71,12 @@ export class SupabaseBitacoraRepository implements IBitacoraRepository {
     }
     if (filters?.fecha_hasta) {
       query = query.lte('fecha_novedad', filters.fecha_hasta)
+    }
+    if (filters?.fecha_robot_desde) {
+      query = query.gte('fecha_tentativa_solucion', filters.fecha_robot_desde)
+    }
+    if (filters?.fecha_robot_hasta) {
+      query = query.lte('fecha_tentativa_solucion', filters.fecha_robot_hasta)
     }
 
     query = query.order(orderBy as string, { ascending: orderDir === 'asc' }).range(from, to)

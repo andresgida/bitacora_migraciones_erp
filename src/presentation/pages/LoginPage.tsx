@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Loader2, Eye, EyeOff, Mail, Lock } from 'lucide-react'
 import { useAuth } from '@/presentation/hooks/useAuth'
+import OfimaLogo from '@/presentation/components/common/OfimaLogo'
 import { toast } from 'sonner'
 
 const loginSchema = z.object({
@@ -13,18 +14,6 @@ const loginSchema = z.object({
 })
 
 type LoginForm = z.infer<typeof loginSchema>
-
-const OFIMA_LOGO_URL = '/ofima-logo.png'
-
-function OfimaLogo() {
-  return (
-    <img
-      src={OFIMA_LOGO_URL}
-      alt="Ofima — Líderes en Transformación Digital"
-      className="mx-auto max-h-36 w-auto object-contain rounded-xl drop-shadow-lg"
-    />
-  )
-}
 
 export default function LoginPage() {
   const { isAuthenticated, isLoading, signIn } = useAuth()
@@ -78,7 +67,7 @@ export default function LoginPage() {
         >
           <div>
             <div className="mb-8">
-              <OfimaLogo />
+              <OfimaLogo className="mx-auto max-h-36 drop-shadow-lg" />
             </div>
 
             <h2 className="text-2xl font-bold leading-snug text-white">
@@ -97,6 +86,11 @@ export default function LoginPage() {
 
         {/* ── Right panel ── */}
         <div className="flex flex-1 flex-col justify-center bg-white px-8 py-10">
+          <div className="mb-6 flex justify-center md:hidden">
+            <div className="rounded-xl bg-[#003A6A] px-6 py-4 shadow-md">
+              <OfimaLogo className="max-h-14" />
+            </div>
+          </div>
           <div className="mb-6">
             <h1 className="text-2xl font-bold text-[#031c38]">Iniciar sesión</h1>
             <p className="mt-1 text-sm text-[#42474f]">

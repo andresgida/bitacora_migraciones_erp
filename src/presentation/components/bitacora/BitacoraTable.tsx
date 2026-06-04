@@ -21,6 +21,7 @@ import {
   Search,
   ChevronLeft,
   ChevronRight,
+  X,
 } from 'lucide-react'
 import * as XLSX from 'xlsx'
 import { Button } from '../ui/button'
@@ -38,12 +39,14 @@ import {
   AlertDialogTrigger,
 } from '../ui/alert-dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
-import { cn } from '@/lib/utils'
-import { formatDate } from '@/lib/utils'
+import MultiSelectFilter from '@/presentation/components/common/MultiSelectFilter'
+import FilterField from '@/presentation/components/common/FilterField'
+import { cn, formatDate, getEstadoIncidencia } from '@/lib/utils'
 import {
   PRIORIDAD_COLORS,
   ESTADO_COLORS,
   ESTADO_FDS_COLORS,
+  ESTADO_INCIDENCIA_COLORS,
 } from '@/presentation/constants/options'
 import type { Bitacora } from '@/domain/entities/Bitacora'
 import {
@@ -68,14 +71,22 @@ interface BitacoraTableProps {
   onView: (record: Bitacora) => void
   onNew: () => void
   filterEstado: string
-  filterPrioridad: string
+  filterPrioridad: string[]
   filterEstadoFDS: string
   filterSolucionado: string
+  filterFechaDesde: string
+  filterFechaHasta: string
+  filterFechaRobotDesde: string
+  filterFechaRobotHasta: string
   search: string
   onFilterEstado: (v: string) => void
-  onFilterPrioridad: (v: string) => void
+  onFilterPrioridad: (v: string[]) => void
   onFilterEstadoFDS: (v: string) => void
   onFilterSolucionado: (v: string) => void
+  onFilterFechaDesde: (v: string) => void
+  onFilterFechaHasta: (v: string) => void
+  onFilterFechaRobotDesde: (v: string) => void
+  onFilterFechaRobotHasta: (v: string) => void
   onSearch: (v: string) => void
 }
 
@@ -107,6 +118,30 @@ function EstadoBadge({ value }: { value: string | null }) {
   )
 }
 
+function EstadoIncidenciaBadge({
+  fechaRobotOficial,
+  solucionado,
+}: {
+  fechaRobotOficial: string | null
+  solucionado: string | null
+}) {
+  const estado = getEstadoIncidencia(fechaRobotOficial, solucionado)
+  if (!estado) return <span className="text-muted-foreground text-xs">—</span>
+  return (
+    <span
+      className={cn(
+        'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium',
+        ESTADO_INCIDENCIA_COLORS[estado] ?? 'bg-muted text-muted-foreground',
+      )}
+    >
+      {estado}
+    </span>
+  )
+}
+
+const selectFilterTriggerClass =
+  'h-8 min-w-[6.5rem] border-0 bg-transparent px-1 text-xs shadow-none focus:ring-0 focus:ring-offset-0 text-secondary-foreground'
+
 export default function BitacoraTable({
   data,
   total,
@@ -125,11 +160,19 @@ export default function BitacoraTable({
   filterPrioridad,
   filterEstadoFDS,
   filterSolucionado,
+  filterFechaDesde,
+  filterFechaHasta,
+  filterFechaRobotDesde,
+  filterFechaRobotHasta,
   search,
   onFilterEstado,
   onFilterPrioridad,
   onFilterEstadoFDS,
   onFilterSolucionado,
+  onFilterFechaDesde,
+  onFilterFechaHasta,
+  onFilterFechaRobotDesde,
+  onFilterFechaRobotHasta,
   onSearch,
 }: BitacoraTableProps) {
   const [sorting, setSorting] = useState<SortingState>([])
@@ -224,6 +267,16 @@ export default function BitacoraTable({
         },
       },
       {
+        accessorKey: 'fecha_tentativa_solucion',
+        header: 'Fecha Robot Oficial',
+        size: 130,
+        cell: ({ row }) => (
+          <span className="text-xs text-secondary-foreground">
+            {formatDate(row.original.fecha_tentativa_solucion)}
+          </span>
+        ),
+      },
+      {
         accessorKey: 'solucionado',
         header: 'Solucionado',
         size: 100,
@@ -245,6 +298,17 @@ export default function BitacoraTable({
             </Badge>
           )
         },
+      },
+      {
+        id: 'estado_incidencias',
+        header: 'Estado de incidencias',
+        size: 140,
+        cell: ({ row }) => (
+          <EstadoIncidenciaBadge
+            fechaRobotOficial={row.original.fecha_tentativa_solucion}
+            solucionado={row.original.solucionado}
+          />
+        ),
       },
       {
         accessorKey: 'created_at',
@@ -353,12 +417,15 @@ export default function BitacoraTable({
       'Link Video': r.link_video ?? '',
       Prioridad: r.prioridad_servicio ?? '',
       Solucionado: r.solucionado ?? 'No',
+      'Estado de incidencias':
+        getEstadoIncidencia(r.fecha_tentativa_solucion, r.solucionado) ?? '',
       'Estado FDS': r.estado_fds ?? '',
       'Encargado FDS': r.encargado_fds ?? '',
       'Segmentación FDS': r.segmentacion_fds ?? '',
       'Impacto FDS': r.impacto_fds ?? '',
       'Azure URL': r.azure_url ?? '',
-      'Fecha Tentativa': r.fecha_tentativa_solucion ?? '',
+      'Fecha Robot Oficial': r.fecha_tentativa_solucion ?? '',
+      'Fecha robot beta': r.fecha_robot_beta ?? '',
       'Observaciones FDS': r.observaciones_fds ?? '',
       Creado: r.created_at,
     }))
@@ -384,57 +451,125 @@ export default function BitacoraTable({
             />
           </div>
 
-          <Select value={filterEstado} onValueChange={onFilterEstado}>
-            <SelectTrigger className="w-36 border-border bg-popover text-secondary-foreground">
-              <SelectValue placeholder="Estado" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="__ALL__">Todos los estados</SelectItem>
-              <SelectItem value="__EMPTY__">Estado no configurado</SelectItem>
-              {EstadoValues.map((v) => (
-                <SelectItem key={v} value={v}>{v}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <FilterField label="Estado">
+            <Select value={filterEstado} onValueChange={onFilterEstado}>
+              <SelectTrigger className={selectFilterTriggerClass}>
+                <SelectValue placeholder="Todos" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="__ALL__">Todos los estados</SelectItem>
+                <SelectItem value="__EMPTY__">Estado no configurado</SelectItem>
+                {EstadoValues.map((v) => (
+                  <SelectItem key={v} value={v}>{v}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </FilterField>
 
-          <Select value={filterPrioridad} onValueChange={onFilterPrioridad}>
-            <SelectTrigger className="w-40 border-border bg-popover text-secondary-foreground">
-              <SelectValue placeholder="Prioridad" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="__ALL__">Todas las prioridades</SelectItem>
-              <SelectItem value="__EMPTY__">Estado no configurado</SelectItem>
-              {PrioridadValues.map((v) => (
-                <SelectItem key={v} value={v}>{v}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <MultiSelectFilter
+            label="Prioridad"
+            placeholder="Todas"
+            selected={filterPrioridad}
+            onChange={onFilterPrioridad}
+            emptyOption={{ value: '__EMPTY__', label: 'Estado no configurado' }}
+            options={PrioridadValues.map((v) => ({ value: v, label: v }))}
+          />
 
-          <Select value={filterEstadoFDS} onValueChange={onFilterEstadoFDS}>
-            <SelectTrigger className="w-36 border-border bg-popover text-secondary-foreground">
-              <SelectValue placeholder="Estado FDS" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="__ALL__">Todo FDS</SelectItem>
-              <SelectItem value="__EMPTY__">Estado no configurado</SelectItem>
-              {EstadoFDSValues.map((v) => (
-                <SelectItem key={v} value={v}>{v}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <FilterField label="Estado FDS">
+            <Select value={filterEstadoFDS} onValueChange={onFilterEstadoFDS}>
+              <SelectTrigger className={selectFilterTriggerClass}>
+                <SelectValue placeholder="Todos" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="__ALL__">Todo FDS</SelectItem>
+                <SelectItem value="__EMPTY__">Estado no configurado</SelectItem>
+                {EstadoFDSValues.map((v) => (
+                  <SelectItem key={v} value={v}>{v}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </FilterField>
 
-          <Select value={filterSolucionado} onValueChange={onFilterSolucionado}>
-            <SelectTrigger className="w-44 border-border bg-popover text-secondary-foreground">
-              <SelectValue placeholder="Solucionado" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="__ALL__">Todo solucionado</SelectItem>
-              <SelectItem value="__EMPTY__">Estado no configurado</SelectItem>
-              {SolucionadoValues.map((v) => (
-                <SelectItem key={v} value={v}>{v}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <FilterField label="Solucionado">
+            <Select value={filterSolucionado} onValueChange={onFilterSolucionado}>
+              <SelectTrigger className={selectFilterTriggerClass}>
+                <SelectValue placeholder="Todos" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="__ALL__">Todo solucionado</SelectItem>
+                <SelectItem value="__EMPTY__">Estado no configurado</SelectItem>
+                {SolucionadoValues.map((v) => (
+                  <SelectItem key={v} value={v}>{v}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </FilterField>
+
+          <FilterField label="Fecha novedad">
+            <Input
+              type="date"
+              aria-label="Fecha novedad desde"
+              value={filterFechaDesde}
+              max={filterFechaHasta || undefined}
+              onChange={(e) => onFilterFechaDesde(e.target.value)}
+              className="h-8 w-[130px] border-0 bg-transparent px-1 text-xs focus-visible:ring-0 focus-visible:ring-offset-0"
+            />
+            <span className="text-xs text-muted-foreground">—</span>
+            <Input
+              type="date"
+              aria-label="Fecha novedad hasta"
+              value={filterFechaHasta}
+              min={filterFechaDesde || undefined}
+              onChange={(e) => onFilterFechaHasta(e.target.value)}
+              className="h-8 w-[130px] border-0 bg-transparent px-1 text-xs focus-visible:ring-0 focus-visible:ring-offset-0"
+            />
+            {(filterFechaDesde || filterFechaHasta) && (
+              <button
+                type="button"
+                aria-label="Limpiar filtro de fecha novedad"
+                onClick={() => {
+                  onFilterFechaDesde('')
+                  onFilterFechaHasta('')
+                }}
+                className="rounded p-0.5 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </FilterField>
+
+          <FilterField label="F. Robot Oficial">
+            <Input
+              type="date"
+              aria-label="Fecha Robot Oficial desde"
+              value={filterFechaRobotDesde}
+              max={filterFechaRobotHasta || undefined}
+              onChange={(e) => onFilterFechaRobotDesde(e.target.value)}
+              className="h-8 w-[130px] border-0 bg-transparent px-1 text-xs focus-visible:ring-0 focus-visible:ring-offset-0"
+            />
+            <span className="text-xs text-muted-foreground">—</span>
+            <Input
+              type="date"
+              aria-label="Fecha Robot Oficial hasta"
+              value={filterFechaRobotHasta}
+              min={filterFechaRobotDesde || undefined}
+              onChange={(e) => onFilterFechaRobotHasta(e.target.value)}
+              className="h-8 w-[130px] border-0 bg-transparent px-1 text-xs focus-visible:ring-0 focus-visible:ring-offset-0"
+            />
+            {(filterFechaRobotDesde || filterFechaRobotHasta) && (
+              <button
+                type="button"
+                aria-label="Limpiar filtro de Fecha Robot Oficial"
+                onClick={() => {
+                  onFilterFechaRobotDesde('')
+                  onFilterFechaRobotHasta('')
+                }}
+                className="rounded p-0.5 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </FilterField>
         </div>
 
         <div className="flex items-center gap-2">

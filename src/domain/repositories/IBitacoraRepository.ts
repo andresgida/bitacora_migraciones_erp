@@ -5,7 +5,7 @@ export interface BitacoraFilters {
   nombre_empresa?: string
   estado?: string
   estadoEmpty?: boolean
-  prioridad_servicio?: string
+  prioridad_servicio?: string[]
   prioridadEmpty?: boolean
   csm?: string
   lider_novedad?: string
@@ -17,6 +17,8 @@ export interface BitacoraFilters {
   estadoFdsEmpty?: boolean
   fecha_desde?: string
   fecha_hasta?: string
+  fecha_robot_desde?: string
+  fecha_robot_hasta?: string
 }
 
 export interface PaginationParams {

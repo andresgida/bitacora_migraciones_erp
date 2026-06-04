@@ -91,6 +91,25 @@ function ColorBadge({
   )
 }
 
+function SolucionadoBadge({ value }: { value: string | null }) {
+  const val = value ?? 'No'
+  const isPositive = val === 'Si'
+  const isNegative = val === 'No'
+  return (
+    <Badge
+      variant={isPositive ? 'default' : 'secondary'}
+      className={cn(
+        'text-xs',
+        isPositive && 'bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300',
+        isNegative && 'bg-secondary text-muted-foreground',
+        !isPositive && !isNegative && 'bg-orange-100 text-orange-800 dark:bg-orange-950 dark:text-orange-300',
+      )}
+    >
+      {val}
+    </Badge>
+  )
+}
+
 export default function BitacoraDetail({
   record,
   auditLogs = [],
@@ -246,11 +265,7 @@ export default function BitacoraDetail({
                 <Separator className="my-1" />
                 <DetailRow
                   label="Solucionado"
-                  value={
-                    <Badge variant={record.solucionado ? 'default' : 'secondary'}>
-                      {record.solucionado ? 'Sí' : 'No'}
-                    </Badge>
-                  }
+                  value={<SolucionadoBadge value={record.solucionado} />}
                 />
                 {record.azure_url && (
                   <>

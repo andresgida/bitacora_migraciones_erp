@@ -24,9 +24,13 @@ export default function BitacoraPage() {
   const [pageSize, setPageSize] = useState(20)
   const [search, setSearch] = useState('')
   const [filterEstado, setFilterEstado] = useState('__ALL__')
-  const [filterPrioridad, setFilterPrioridad] = useState('__ALL__')
+  const [filterPrioridad, setFilterPrioridad] = useState<string[]>([])
   const [filterEstadoFDS, setFilterEstadoFDS] = useState('__ALL__')
   const [filterSolucionado, setFilterSolucionado] = useState('__ALL__')
+  const [filterFechaDesde, setFilterFechaDesde] = useState('')
+  const [filterFechaHasta, setFilterFechaHasta] = useState('')
+  const [filterFechaRobotDesde, setFilterFechaRobotDesde] = useState('')
+  const [filterFechaRobotHasta, setFilterFechaRobotHasta] = useState('')
 
   const [formOpen, setFormOpen] = useState(false)
   const [detailOpen, setDetailOpen] = useState(false)
@@ -41,11 +45,14 @@ export default function BitacoraPage() {
       : filterEstado !== '__ALL__'
         ? { estado: filterEstado }
         : {}),
-    ...(filterPrioridad === '__EMPTY__'
-      ? { prioridadEmpty: true }
-      : filterPrioridad !== '__ALL__'
-        ? { prioridad_servicio: filterPrioridad }
-        : {}),
+    ...(filterPrioridad.length > 0
+      ? {
+          ...(filterPrioridad.includes('__EMPTY__') ? { prioridadEmpty: true } : {}),
+          ...(filterPrioridad.filter((v) => v !== '__EMPTY__').length > 0
+            ? { prioridad_servicio: filterPrioridad.filter((v) => v !== '__EMPTY__') }
+            : {}),
+        }
+      : {}),
     ...(filterEstadoFDS === '__EMPTY__'
       ? { estadoFdsEmpty: true }
       : filterEstadoFDS !== '__ALL__'
@@ -56,6 +63,10 @@ export default function BitacoraPage() {
       : filterSolucionado !== '__ALL__'
         ? { solucionado: filterSolucionado }
         : {}),
+    ...(filterFechaDesde ? { fecha_desde: filterFechaDesde } : {}),
+    ...(filterFechaHasta ? { fecha_hasta: filterFechaHasta } : {}),
+    ...(filterFechaRobotDesde ? { fecha_robot_desde: filterFechaRobotDesde } : {}),
+    ...(filterFechaRobotHasta ? { fecha_robot_hasta: filterFechaRobotHasta } : {}),
   }
 
   const pagination = { page, pageSize }
@@ -161,6 +172,10 @@ export default function BitacoraPage() {
         filterPrioridad={filterPrioridad}
         filterEstadoFDS={filterEstadoFDS}
         filterSolucionado={filterSolucionado}
+        filterFechaDesde={filterFechaDesde}
+        filterFechaHasta={filterFechaHasta}
+        filterFechaRobotDesde={filterFechaRobotDesde}
+        filterFechaRobotHasta={filterFechaRobotHasta}
         search={search}
         onFilterEstado={(v) => {
           setFilterEstado(v)
@@ -176,6 +191,22 @@ export default function BitacoraPage() {
         }}
         onFilterSolucionado={(v) => {
           setFilterSolucionado(v)
+          setPage(1)
+        }}
+        onFilterFechaDesde={(v) => {
+          setFilterFechaDesde(v)
+          setPage(1)
+        }}
+        onFilterFechaHasta={(v) => {
+          setFilterFechaHasta(v)
+          setPage(1)
+        }}
+        onFilterFechaRobotDesde={(v) => {
+          setFilterFechaRobotDesde(v)
+          setPage(1)
+        }}
+        onFilterFechaRobotHasta={(v) => {
+          setFilterFechaRobotHasta(v)
           setPage(1)
         }}
         onSearch={handleSearchChange}

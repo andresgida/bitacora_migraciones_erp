@@ -1,7 +1,8 @@
 import { NavLink } from 'react-router-dom'
-import { Zap, LayoutDashboard, BookOpen, Settings2, Settings, HelpCircle } from 'lucide-react'
+import { LayoutDashboard, BookOpen, Settings2, Settings, HelpCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/presentation/stores/authStore'
+import OfimaLogo from '@/presentation/components/common/OfimaLogo'
 
 const baseNavItems = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, adminOnly: false },
@@ -18,12 +19,12 @@ export default function Sidebar() {
       {/* Logo */}
       <div className="px-4 py-5 mb-2">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary">
-            <Zap className="h-5 w-5 text-primary-foreground" />
+          <div className="shrink-0 rounded-lg bg-[#003A6A] px-2 py-1.5">
+            <OfimaLogo className="h-8 max-w-[120px]" />
           </div>
-          <div>
+          <div className="min-w-0">
             <h1 className="text-base font-bold leading-tight text-primary">Bitácora</h1>
-            <p className="text-xs text-muted-foreground">ERP Migration 2026</p>
+            <p className="text-xs text-muted-foreground">ERP Migración 2026</p>
           </div>
         </div>
       </div>

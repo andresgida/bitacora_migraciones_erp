@@ -180,6 +180,12 @@ export const ESTADO_COLORS: Record<string, string> = {
   Implementación: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300',
 }
 
+export const ESTADO_INCIDENCIA_COLORS: Record<string, string> = {
+  Vencido: 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300',
+  'A tiempo': 'bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300',
+  Resuelto: 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300',
+}
+
 export const ESTADO_FDS_COLORS: Record<string, string> = {
   Solucionado: 'bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300',
   Pendiente: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-950 dark:text-yellow-300',

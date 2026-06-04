@@ -40,3 +40,27 @@ export function truncate(str: string, maxLength: number): string {
   if (str.length <= maxLength) return str
   return str.slice(0, maxLength) + '...'
 }
+
+export type EstadoIncidenciaType = 'Vencido' | 'A tiempo' | 'Resuelto'
+
+/** Estado calculado según Fecha Robot Oficial y campo Solucionado. */
+export function getEstadoIncidencia(
+  fechaRobotOficial: string | null | undefined,
+  solucionado: string | null | undefined,
+): EstadoIncidenciaType | null {
+  const sol = solucionado ?? 'No'
+
+  if (sol === 'Si') return 'Resuelto'
+  if (!fechaRobotOficial || sol !== 'No') return null
+
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  const fecha = parseDateLocal(fechaRobotOficial)
+  fecha.setHours(0, 0, 0, 0)
+
+  if (fecha.getTime() > today.getTime()) return 'A tiempo'
+  if (fecha.getTime() < today.getTime()) return 'Vencido'
+
+  return 'A tiempo'
+}
