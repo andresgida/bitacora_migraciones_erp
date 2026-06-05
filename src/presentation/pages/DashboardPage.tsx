@@ -10,14 +10,16 @@ import {
 } from 'lucide-react'
 import StatsCard from '@/presentation/components/dashboard/StatsCard'
 import { useDashboardMetrics } from '@/presentation/hooks/useDashboard'
+import { useCatalogOptions } from '@/presentation/hooks/useCatalog'
 import LoadingSpinner from '@/presentation/components/common/LoadingSpinner'
 import { cn } from '@/lib/utils'
 import { PRIORIDAD_COLORS, ESTADO_COLORS, ESTADO_FDS_COLORS, SEGMENTACION_COLORS } from '@/presentation/constants/options'
 
 export default function DashboardPage() {
-  const { data: metrics, isLoading } = useDashboardMetrics()
+  const { data: metrics, isLoading: metricsLoading } = useDashboardMetrics()
+  const { data: catPrioridad, isLoading: catalogLoading } = useCatalogOptions('prioridad')
 
-  if (isLoading) {
+  if (metricsLoading || catalogLoading) {
     return (
       <div className="flex h-64 items-center justify-center">
         <LoadingSpinner size="lg" />
@@ -28,6 +30,16 @@ export default function DashboardPage() {
   const byEstado = metrics?.byEstado ?? {}
   const byPrioridad = metrics?.byPrioridad ?? {}
   const byEstadoFDS = metrics?.byEstadoFDS ?? {}
+
+  const catalogPrioridades = (catPrioridad ?? []).filter((item) => item.active).map((item) => item.value)
+  const catalogSet = new Set(catalogPrioridades)
+  const prioridadItems = [
+    ...catalogPrioridades.map((value) => ({ value, count: byPrioridad[value] ?? 0 })),
+    ...Object.entries(byPrioridad)
+      .filter(([value]) => !catalogSet.has(value))
+      .sort(([, a], [, b]) => b - a)
+      .map(([value, count]) => ({ value, count })),
+  ]
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -113,34 +125,31 @@ export default function DashboardPage() {
             Prioridad Servicio
           </h3>
           <div className="space-y-3">
-            {Object.entries(byPrioridad).length === 0 ? (
+            {prioridadItems.length === 0 ? (
               <p className="text-sm text-muted-foreground">Sin datos</p>
             ) : (
-              Object.entries(byPrioridad)
-                .sort(([, a], [, b]) => b - a)
-                .slice(0, 6)
-                .map(([prioridad, count]) => (
-                  <div key={prioridad} className="flex items-center justify-between gap-3">
-                    <span
-                      className={cn(
-                        'inline-flex shrink-0 items-center rounded-full border px-2 py-0.5 text-xs font-semibold',
-                        PRIORIDAD_COLORS[prioridad] ?? 'border-border bg-secondary text-muted-foreground',
-                      )}
-                    >
-                      {prioridad}
-                    </span>
-                    <div className="flex flex-1 items-center gap-2">
-                      <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-secondary">
-                        <div
-                          className="h-full rounded-full bg-primary"
-                          style={{ width: `${((count / (metrics?.total ?? 1)) * 100).toFixed(0)}%` }}
-                        />
-                      </div>
-                      <span className="text-sm font-semibold tabular-nums text-foreground">{count}</span>
-                      <span className="text-xs font-bold tabular-nums w-10 text-center px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">{((count / (metrics?.total ?? 1)) * 100).toFixed(0)}%</span>
+              prioridadItems.map(({ value: prioridad, count }) => (
+                <div key={prioridad} className="flex items-center justify-between gap-3">
+                  <span
+                    className={cn(
+                      'inline-flex shrink-0 items-center rounded-full border px-2 py-0.5 text-xs font-semibold',
+                      PRIORIDAD_COLORS[prioridad] ?? 'border-border bg-secondary text-muted-foreground',
+                    )}
+                  >
+                    {prioridad}
+                  </span>
+                  <div className="flex flex-1 items-center gap-2">
+                    <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-secondary">
+                      <div
+                        className="h-full rounded-full bg-primary"
+                        style={{ width: `${((count / (metrics?.total ?? 1)) * 100).toFixed(0)}%` }}
+                      />
                     </div>
+                    <span className="text-sm font-semibold tabular-nums text-foreground">{count}</span>
+                    <span className="text-xs font-bold tabular-nums w-10 text-center px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">{((count / (metrics?.total ?? 1)) * 100).toFixed(0)}%</span>
                   </div>
-                ))
+                </div>
+              ))
             )}
           </div>
         </div>
