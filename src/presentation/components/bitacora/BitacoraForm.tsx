@@ -22,10 +22,33 @@ import { useCatalogOptions } from '@/presentation/hooks/useCatalog'
 interface BitacoraFormProps {
   open: boolean
   onClose: () => void
-  onSubmit: (data: BitacoraFormData) => void
+  onSubmit: (data: BitacoraFormData | Partial<BitacoraFormData>) => void
   isLoading?: boolean
   defaultValues?: Partial<Bitacora>
   mode?: 'create' | 'edit'
+}
+
+/** Incluye el valor guardado aunque el catálogo aún no haya cargado (evita que Radix Select lo borre). */
+function mergeOptionsWithCurrent(options: readonly string[], current: unknown): string[] {
+  const value =
+    current != null && String(current).trim() !== '' ? String(current) : null
+  if (value && !options.includes(value)) {
+    return [value, ...options]
+  }
+  return [...options]
+}
+
+function pickDirtyFields<T extends Record<string, unknown>>(
+  data: T,
+  dirtyFields: Partial<Record<keyof T, boolean | object>>,
+): Partial<T> {
+  const result: Partial<T> = {}
+  for (const key of Object.keys(dirtyFields) as (keyof T)[]) {
+    if (dirtyFields[key]) {
+      result[key] = data[key]
+    }
+  }
+  return result
 }
 
 const storage = new SupabaseStorageService()
@@ -60,7 +83,9 @@ function SelectField({
       <Controller
         control={control}
         name={name}
-        render={({ field, fieldState }) => (
+        render={({ field, fieldState }) => {
+          const resolvedOptions = mergeOptionsWithCurrent(options, field.value)
+          return (
           <>
             <Select
               value={
@@ -78,7 +103,7 @@ function SelectField({
                 <SelectItem value="__NONE__">
                   <span className="text-muted-foreground">— Sin seleccionar —</span>
                 </SelectItem>
-                {options.map((opt) => (
+                {resolvedOptions.map((opt) => (
                   <SelectItem key={opt} value={opt}>
                     {opt}
                   </SelectItem>
@@ -89,7 +114,8 @@ function SelectField({
               <p className="text-xs text-destructive">{fieldState.error.message}</p>
             )}
           </>
-        )}
+          )
+        }}
       />
     </div>
   )
@@ -120,6 +146,7 @@ export default function BitacoraForm({
   const { data: catImpacto } = useCatalogOptions('impacto_fds')
   const img1Ref = useRef<HTMLInputElement>(null)
   const img2Ref = useRef<HTMLInputElement>(null)
+  const [activeTab, setActiveTab] = useState('general')
 
   const {
     register,
@@ -128,7 +155,7 @@ export default function BitacoraForm({
     reset,
     setValue,
     watch,
-    formState: { errors },
+    formState: { errors, dirtyFields },
   } = useForm<BitacoraFormData>({
     resolver: zodResolver(BitacoraFormSchema),
     defaultValues: {
@@ -140,13 +167,14 @@ export default function BitacoraForm({
 
   useEffect(() => {
     if (open) {
+      setActiveTab('general')
       reset({
         prioridad_servicio: 'REVISION FORMACION',
         solucionado: 'En revisión',
         ...defaultValues,
       })
     }
-  }, [open, defaultValues, reset])
+  }, [open, defaultValues?.id, defaultValues?.updated_at, reset, defaultValues])
 
   const img1Url = watch('imagen_1_url')
   const img2Url = watch('imagen_2_url')
@@ -176,7 +204,12 @@ export default function BitacoraForm({
             <Controller
               control={control}
               name="nombre_empresa"
-              render={({ field, fieldState }) => (
+              render={({ field, fieldState }) => {
+                const empresas = mergeOptionsWithCurrent(
+                  toCatalogArray(catEmpresa),
+                  field.value,
+                )
+                return (
                 <>
                   <Select
                     value={field.value ?? ''}
@@ -186,7 +219,7 @@ export default function BitacoraForm({
                       <SelectValue placeholder="Seleccionar empresa" />
                     </SelectTrigger>
                     <SelectContent className="max-h-60">
-                      {toCatalogArray(catEmpresa).map((emp) => (
+                      {empresas.map((emp) => (
                         <SelectItem key={emp} value={emp}>
                           {emp}
                         </SelectItem>
@@ -197,7 +230,8 @@ export default function BitacoraForm({
                     <p className="text-xs text-destructive">{fieldState.error.message}</p>
                   )}
                 </>
-              )}
+                )
+              }}
             />
           </div>
 
@@ -481,8 +515,6 @@ export default function BitacoraForm({
     },
   ]
 
-  const [activeTab, setActiveTab] = useState('general')
-
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col p-0">
@@ -510,11 +542,26 @@ export default function BitacoraForm({
         </div>
 
         <form
-          onSubmit={handleSubmit(onSubmit)}
+          onSubmit={handleSubmit((data) => {
+            if (mode === 'edit') {
+              const changed = pickDirtyFields(data, dirtyFields)
+              if (Object.keys(changed).length === 0) {
+                onClose()
+                return
+              }
+              onSubmit(changed)
+              return
+            }
+            onSubmit(data)
+          })}
           className="flex flex-col flex-1 overflow-hidden"
         >
           <div className="flex-1 min-h-0 overflow-y-auto px-6 py-4">
-            {tabSections.find((s) => s.id === activeTab)?.fields}
+            {tabSections.map((section) => (
+              <div key={section.id} className={activeTab === section.id ? undefined : 'hidden'}>
+                {section.fields}
+              </div>
+            ))}
           </div>
 
           <DialogFooter className="px-6 py-4 border-t">

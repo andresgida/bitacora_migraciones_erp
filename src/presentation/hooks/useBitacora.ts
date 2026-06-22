@@ -76,7 +76,7 @@ export function useUpdateBitacora() {
   const { user, profile } = useAuthStore()
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: number; data: BitacoraFormData }) =>
+    mutationFn: ({ id, data }: { id: number; data: BitacoraFormData | Partial<BitacoraFormData> }) =>
       updateUC.execute(id, data as BitacoraUpdate, user?.id, profile?.email ?? user?.email),
     onSuccess: (updatedRecord) => {
       queryClient.invalidateQueries({ queryKey: [BITACORA_QUERY_KEY] })

@@ -116,10 +116,10 @@ export default function BitacoraPage() {
   )
 
   const handleFormSubmit = useCallback(
-    async (formData: BitacoraFormData) => {
+    async (formData: BitacoraFormData | Partial<BitacoraFormData>) => {
       try {
         if (editMode === 'create') {
-          await create(formData)
+          await create(formData as BitacoraFormData)
           setFormOpen(false)
         } else if (selectedRecord) {
           await update({ id: selectedRecord.id, data: formData })
