@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from 'react'
-import { useForm, Controller } from 'react-hook-form'
+import { useEffect, useState } from 'react'
+import { useForm, Controller, type Control } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2, Upload, X } from 'lucide-react'
+import { toast } from 'sonner'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
@@ -52,6 +53,87 @@ function pickDirtyFields<T extends Record<string, unknown>>(
 }
 
 const storage = new SupabaseStorageService()
+
+function ImageUploadField({
+  control,
+  name,
+  label,
+  inputId,
+  uploading,
+  onUpload,
+}: {
+  control: Control<BitacoraFormData>
+  name: 'imagen_1_url' | 'imagen_2_url'
+  label: string
+  inputId: string
+  uploading: boolean
+  onUpload: (file: File) => Promise<string>
+}) {
+  return (
+    <Controller
+      control={control}
+      name={name}
+      render={({ field }) => (
+        <div className="space-y-1.5">
+          <Label htmlFor={inputId}>{label}</Label>
+          <div className="flex items-center gap-2">
+            <input
+              id={inputId}
+              type="file"
+              accept="image/*"
+              className="sr-only"
+              disabled={uploading}
+              onChange={async (e) => {
+                const file = e.target.files?.[0]
+                e.target.value = ''
+                if (!file) return
+                try {
+                  const url = await onUpload(file)
+                  field.onChange(url)
+                } catch (err) {
+                  toast.error(err instanceof Error ? err.message : 'Error al subir la imagen')
+                }
+              }}
+            />
+            {uploading ? (
+              <Button type="button" variant="outline" size="sm" className="gap-2" disabled>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Subiendo...
+              </Button>
+            ) : (
+              <Button type="button" variant="outline" size="sm" className="gap-2" asChild>
+                <label htmlFor={inputId} className="cursor-pointer">
+                  <Upload className="h-4 w-4" />
+                  Subir
+                </label>
+              </Button>
+            )}
+            {field.value && (
+              <div className="flex items-center gap-1 min-w-0">
+                <a
+                  href={field.value}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-xs text-primary truncate max-w-[120px] hover:underline"
+                >
+                  Ver imagen
+                </a>
+                <button
+                  type="button"
+                  onClick={() => field.onChange(null)}
+                  className="text-muted-foreground hover:text-destructive"
+                  aria-label={`Quitar ${label.toLowerCase()}`}
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    />
+  )
+}
 
 function toCatalogArray(data?: { value: string; active: boolean }[]): string[] {
   return (data ?? []).filter((d) => d.active).map((d) => d.value)
@@ -129,8 +211,6 @@ export default function BitacoraForm({
   defaultValues,
   mode = 'create',
 }: BitacoraFormProps) {
-  const [uploadingImg, setUploadingImg] = useState<'img1' | 'img2' | null>(null)
-
   const { data: catEmpresa } = useCatalogOptions('empresa')
   const { data: catEstado } = useCatalogOptions('estado')
   const { data: catPrioridad } = useCatalogOptions('prioridad')
@@ -144,17 +224,14 @@ export default function BitacoraForm({
   const { data: catSegmentacion } = useCatalogOptions('segmentacion_fds')
   const { data: catEstadoFds } = useCatalogOptions('estado_fds')
   const { data: catImpacto } = useCatalogOptions('impacto_fds')
-  const img1Ref = useRef<HTMLInputElement>(null)
-  const img2Ref = useRef<HTMLInputElement>(null)
   const [activeTab, setActiveTab] = useState('general')
+  const [uploadingImg, setUploadingImg] = useState<'imagen_1_url' | 'imagen_2_url' | null>(null)
 
   const {
     register,
     handleSubmit,
     control,
     reset,
-    setValue,
-    watch,
     formState: { errors, dirtyFields },
   } = useForm<BitacoraFormData>({
     resolver: zodResolver(BitacoraFormSchema),
@@ -176,16 +253,17 @@ export default function BitacoraForm({
     }
   }, [open, defaultValues?.id, defaultValues?.updated_at, reset, defaultValues])
 
-  const img1Url = watch('imagen_1_url')
-  const img2Url = watch('imagen_2_url')
+  async function uploadImage(file: File): Promise<string> {
+    return storage.uploadImage(file, 'bitacora')
+  }
 
-  async function handleImageUpload(file: File, field: 'imagen_1_url' | 'imagen_2_url') {
-    setUploadingImg(field === 'imagen_1_url' ? 'img1' : 'img2')
+  async function handleImageUpload(
+    file: File,
+    field: 'imagen_1_url' | 'imagen_2_url',
+  ): Promise<string> {
+    setUploadingImg(field)
     try {
-      const url = await storage.uploadImage(file, 'bitacora')
-      setValue(field, url)
-    } catch {
-      // error handled by service
+      return await uploadImage(file)
     } finally {
       setUploadingImg(null)
     }
@@ -296,105 +374,22 @@ export default function BitacoraForm({
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label>Imagen 1</Label>
-              <div className="flex items-center gap-2">
-                <input
-                  ref={img1Ref}
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0]
-                    if (file) handleImageUpload(file, 'imagen_1_url')
-                  }}
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="gap-2"
-                  disabled={uploadingImg === 'img1'}
-                  onClick={() => img1Ref.current?.click()}
-                >
-                  {uploadingImg === 'img1' ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Upload className="h-4 w-4" />
-                  )}
-                  Subir
-                </Button>
-                {img1Url && (
-                  <div className="flex items-center gap-1 min-w-0">
-                    <a
-                      href={img1Url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-xs text-primary truncate max-w-[120px] hover:underline"
-                    >
-                      Ver imagen
-                    </a>
-                    <button
-                      type="button"
-                      onClick={() => setValue('imagen_1_url', null)}
-                      className="text-muted-foreground hover:text-destructive"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <Label>Imagen 2</Label>
-              <div className="flex items-center gap-2">
-                <input
-                  ref={img2Ref}
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0]
-                    if (file) handleImageUpload(file, 'imagen_2_url')
-                  }}
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="gap-2"
-                  disabled={uploadingImg === 'img2'}
-                  onClick={() => img2Ref.current?.click()}
-                >
-                  {uploadingImg === 'img2' ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Upload className="h-4 w-4" />
-                  )}
-                  Subir
-                </Button>
-                {img2Url && (
-                  <div className="flex items-center gap-1 min-w-0">
-                    <a
-                      href={img2Url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-xs text-primary truncate max-w-[120px] hover:underline"
-                    >
-                      Ver imagen
-                    </a>
-                    <button
-                      type="button"
-                      onClick={() => setValue('imagen_2_url', null)}
-                      className="text-muted-foreground hover:text-destructive"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
+            <ImageUploadField
+              control={control}
+              name="imagen_1_url"
+              label="Imagen 1"
+              inputId="bitacora-imagen-1"
+              uploading={uploadingImg === 'imagen_1_url'}
+              onUpload={(file) => handleImageUpload(file, 'imagen_1_url')}
+            />
+            <ImageUploadField
+              control={control}
+              name="imagen_2_url"
+              label="Imagen 2"
+              inputId="bitacora-imagen-2"
+              uploading={uploadingImg === 'imagen_2_url'}
+              onUpload={(file) => handleImageUpload(file, 'imagen_2_url')}
+            />
           </div>
 
           <div className="space-y-1.5">
